@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My HTML Document</title>
+    <style>
+        /* CSS styles go here */
+        #canvas {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            overflow: hidden;
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 3px solid black; /* Added black border */
+        }
+
+        .grid-line {
+            position: absolute;
+            background-color: rgb(125, 75, 75);
+            pointer-events: none;
+        }
+
+        .square {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+        }
+
+        .square.active {
+            background-color: blue;
+        }
+
+        .arrow-left {
+            border-right-color: #00ff11;
+            left: -40px;
+            top: calc(50% - 20px);
+        }
+
+            .arrow-right {
+            border-left-color: #00ff11;
+            right: -40px;
+            top: calc(50% - 20px);
+        }
+    </style>
+</head>
+<body>
+    <div id="debug">
+        <div id="debug-position">
+            <!-- Debug information goes here -->
+        </div>
+    </div>
+    <div id="canvas">
+        <!-- Your HTML content goes here -->
+    </div>
+
+    <script>
+        const nodes = [
+            { name: 'string1', X: 100, Y: 100, div: null},
+            { name: 'string2', X: 200, Y: 200, div: null},
+            { name: 'string3', X: 300, Y: 300, div: null},
+        ];
+
+        let dragging = "";
+        let active = null;
+
+        let viewX = 0;
+        let viewY = 0;
+
+        // JavaScript code goes here
+        const canvas = document.getElementById('canvas');
+
+        let divToObjectMap = new Map();
+
+        //Initial render
+        nodes.forEach((node, index) => {
+            const square = document.createElement('div');
+            square.classList.add('square');
+
+            square.style.left = `${node.X + viewX}px`;
+            square.style.top = `${node.Y + viewY}px`;
+            node.div = square;
+            canvas.appendChild(square);
+
+            divToObjectMap.set(square, node);
+        });
+        console.log(nodes); 
+
+        const nodes_divs = document.querySelectorAll('.square');
+
+        function squareActivate(square) {
+            if (active) squareDeactivate(active); //remove previous active
+            active = event.target; //set new active
+            event.target.classList.add('active'); //add style to new active
+
+            let overlay = document.createElement('div');
+            overlay.id = 'overlay';
+            active.appendChild(overlay);
+            overlay.appendChild(document.createElement('div')).classList.add('arrow-left');
+            overlay.appendChild(document.createElement('div')).classList.add('arrow-right');
+            console.log("activated ", active)
+        }
+
+        function squareDeactivate(active) {
+            let overlay = active.querySelector('#overlay');
+            if (overlay) {
+                active.removeChild(overlay);
+            }
+
+            if (active) active.classList.remove('active');
+            console.log("deactivated ", active)
+            active = null;
+        }
+
+        canvas.addEventListener('click', (event) => {
+            if (event.target.classList.contains('square')) {
+                //Handling active square
+                squareActivate(event.target);
+            } else {
+                //Removing any active square
+                squareDeactivate(active);
+            }
+        });
+
+        let prevX, prevY;
+        canvas.addEventListener('mousedown', (event) => {
+            if (event.target.classList.contains('square')) {
+                dragging = divToObjectMap.get(event.target); //Not sure if this mapping is necessary for simple drag
+
+                console.log(dragging);
+            } else {
+                dragging = "view";
+            }
+            startX = event.clientX;
+            startY = event.clientY;
+
+            prevX = undefined;
+            prevY = undefined;
+        });
+
+        
+        canvas.addEventListener('mousemove', (event) => {
+
+            // If prevX and prevY are not set, set them to the current mouse position
+            if (prevX === undefined && prevY === undefined) {
+                prevX = event.clientX;
+                prevY = event.clientY;
+            }
+
+            if (dragging === "view") {
+                let deltaX = event.clientX - prevX;
+                let deltaY = event.clientY - prevY;
+
+                prevX = event.clientX;
+                prevY = event.clientY;
+
+                viewX = viewX + deltaX;
+                viewY = viewY + deltaY;
+
+                nodes.forEach((square, index) => {
+                    square.div.style.left = `${square.X + viewX}px`;
+                    square.div.style.top = `${square.Y + viewY}px`;
+                });
+                console.log(viewX, viewY, deltaX, deltaY, startX, startY)
+            }
+            else if (dragging) {
+                let deltaX = event.clientX - prevX;
+                let deltaY = event.clientY - prevY;
+
+                prevX = event.clientX;
+                prevY = event.clientY;
+
+                dragging.X = dragging.X + deltaX;
+                dragging.Y = dragging.Y + deltaY;
+
+                dragging.div.style.left = `${dragging.X + viewX}px`;
+                dragging.div.style.top = `${dragging.Y + viewY}px`;
+            }
+
+            console.log(dragging);
+            const debugPosition = document.getElementById('debug-position');
+            nodes.forEach((node) => {
+                const debugPosition = document.getElementById('debug-position');
+                debugPosition.innerText = "";
+                debugPosition.innerText += `X_real: ${node.X}px, Y_real: ${node.Y}px\n`;
+            });
+            debugPosition.innerText += `X_view: ${viewX}px, Y_view: ${viewY}px\n`;
+            
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            dragging = "";
+            prevX = undefined;
+            prevY = undefined;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* CSS styles go here */
+        .node {
+            width: 100px;
+            height: 100px;
+            background-color: #853939;
+            text-align: center;
+            line-height: 100px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+        }
+        .arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid black;
+        }
+        #canvas {
+            width: 2000px;
+            height: 2000px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .draggable {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="dynamic-content"></div>
+    <div id="canvas">
+        <div class="draggable" draggable="true">Drag me</div>
+        <!-- Add more draggable divs as needed -->
+      </div>
+    <script>
+        // JavaScript code goes here
+        var json = '[{"name": "node1", "to": "node2"}, {"name": "node2", "to": "node3"}, {"name": "node3", "to": "node1"}]';
+        var graph = {};
+
+        // Parse JSON into an array of objects
+        var nodes = JSON.parse(json);
+
+        // Create the graph structure
+        nodes.forEach(function(node) {
+            var nodeName = node.name;
+            var connectedNodeName = node.to;
+
+            if (!graph[nodeName]) {
+                graph[nodeName] = [];
+            }
+
+            graph[nodeName].push(connectedNodeName);
+        });
+
+        console.log(graph);
+        // Populate dynamic content with the nodes as the node class div
+        var dynamicContent = document.getElementById("dynamic-content");
+
+        Object.keys(graph).forEach(function(nodeName) {
+            var nodeDiv = document.createElement("div");
+            nodeDiv.className = "node";
+            nodeDiv.textContent = nodeName;
+            nodeDiv.draggable = true;
+            dynamicContent.appendChild(nodeDiv);
+
+            var connectedNodes = graph[nodeName];
+            connectedNodes.forEach(function(connectedNodeName) {
+                var arrow = document.createElement("div");
+                arrow.className = "arrow";
+                arrow.style.left = (nodeDiv.offsetLeft + nodeDiv.offsetWidth / 2) + "px";
+                arrow.style.top = (nodeDiv.offsetTop + nodeDiv.offsetHeight) + "px";
+                dynamicContent.appendChild(arrow);
+            });
+        });
+    </script>
+    <script>
+        // Make divs draggable
+        var draggables = document.querySelectorAll('.draggable');
+            draggables.forEach(function(draggable) {
+            draggable.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', draggable.id);
+            });
+        });
+
+        // Make canvas a dropzone
+            var canvas = document.getElementById('canvas');
+            canvas.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+        canvas.addEventListener('drop', function(e) {
+            e.preventDefault();
+            var id = e.dataTransfer.getData('text/plain');
+            var draggable = document.getElementById(id);
+            if (draggable) {
+                draggable.style.left = e.pageX + 'px';
+            }
+            draggable.style.top = e.pageY + 'px';
+            canvas.appendChild(draggable);
+        });
+
+        // Make canvas draggable
+        var pos = { top: 0, left: 0, x: 0, y: 0 };
+        var isDown = false;
+
+        canvas.addEventListener('mousedown', function(e) {
+            isDown = true;
+            pos = {
+                left: canvas.scrollLeft,
+                top: canvas.scrollTop,
+                // Get the current mouse position
+                x: e.clientX,
+                y: e.clientY,
+            };
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (isDown) {
+                // How far the mouse has been moved
+                var dx = e.clientX - pos.x;
+                var dy = e.clientY - pos.y;
+
+                // Scroll the element
+                canvas.scrollTop = pos.top - dy;
+                canvas.scrollLeft = pos.left - dx;
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            isDown = false;
+        });
+
+    </script>
+</body>
+</html>
