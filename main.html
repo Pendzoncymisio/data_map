@@ -1,143 +1,225 @@
-
-<!DOCTYPE html>
 <html>
 <head>
+    <title>Draggable Square</title>
     <style>
-        /* CSS styles go here */
-        .node {
-            width: 100px;
-            height: 100px;
-            background-color: #853939;
-            text-align: center;
-            line-height: 100px;
-            font-size: 16px;
-            font-weight: bold;
-            margin: 10px;
-        }
-        .arrow {
+        body { margin:0; }
+        canvas { background:#ddd; display:block; }
+        .save-button {
             position: absolute;
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid black;
+            top: 10px;
+            right: 10px;
         }
-        #canvas {
-            width: 2000px;
-            height: 2000px;
-            position: relative;
-            overflow: auto;
-        }
-
-        .draggable {
-            width: 100px;
-            height: 100px;
+        .load-button {
             position: absolute;
+            top: 10px;
+            right: 60px;
         }
     </style>
 </head>
 <body>
-    <div id="dynamic-content"></div>
-    <div id="canvas">
-        <div class="draggable" draggable="true">Drag me</div>
-        <!-- Add more draggable divs as needed -->
-      </div>
+    <canvas id="canvas"></canvas>
+    <button class="save-button" onclick="saveDocumentation()">SAVE</button>
+    <button class="load-button" onclick="loadDocumentation()">LOAD</button>
+
     <script>
-        // JavaScript code goes here
-        var json = '[{"name": "node1", "to": "node2"}, {"name": "node2", "to": "node3"}, {"name": "node3", "to": "node1"}]';
-        var graph = {};
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
 
-        // Parse JSON into an array of objects
-        var nodes = JSON.parse(json);
+        var canvasPos = getPosition(canvas);
+        var mouseX = 0;
+        var mouseY = 0;
 
-        // Create the graph structure
-        nodes.forEach(function(node) {
-            var nodeName = node.name;
-            var connectedNodeName = node.to;
+        // Get file with documentation that needs to be visualized. Can be separate function
+        //Not defined propery "active", false by default
+        var documentation; // Declare the documentation variable outside the fetch function
 
-            if (!graph[nodeName]) {
-                graph[nodeName] = [];
-            }
+        fetch('documentation.json')
+            .then(response => response.json())
+            .then(data => {
+                documentation = data; // Assign the fetched data to the documentation variable
+                processDocumentation(); // Call the function that depends on the fetched data
+                console.log(documentation);
+                update();
+            })
+            .catch(error => console.error('Error:', error));
 
-            graph[nodeName].push(connectedNodeName);
-        });
-
-        console.log(graph);
-        // Populate dynamic content with the nodes as the node class div
-        var dynamicContent = document.getElementById("dynamic-content");
-
-        Object.keys(graph).forEach(function(nodeName) {
-            var nodeDiv = document.createElement("div");
-            nodeDiv.className = "node";
-            nodeDiv.textContent = nodeName;
-            nodeDiv.draggable = true;
-            dynamicContent.appendChild(nodeDiv);
-
-            var connectedNodes = graph[nodeName];
-            connectedNodes.forEach(function(connectedNodeName) {
-                var arrow = document.createElement("div");
-                arrow.className = "arrow";
-                arrow.style.left = (nodeDiv.offsetLeft + nodeDiv.offsetWidth / 2) + "px";
-                arrow.style.top = (nodeDiv.offsetTop + nodeDiv.offsetHeight) + "px";
-                dynamicContent.appendChild(arrow);
+        function processDocumentation() {
+            documentation = documentation.map((document, index) => {
+                if (document.id === undefined) {
+                    throw new Error("ID field is missing in" ,index,"th element");
+                }
+                return {
+                    id: document.id,
+                    icon: document.icon !== undefined ? document.icon : "default_icon",
+                    description: document.description !== undefined ? document.description : "default_icon",
+                    parents: document.parents !== undefined ? document.parents : [],
+                    groups: document.groups !== undefined ? document.groups : [],
+                    show_level: document.show_level !== undefined ? document.show_level : 1,
+                    viz: document.viz !== undefined ? document.viz : {x: 0,y: 0, size:50},
+                }
             });
-        });
-    </script>
-    <script>
-        // Make divs draggable
-        var draggables = document.querySelectorAll('.draggable');
-            draggables.forEach(function(draggable) {
-            draggable.addEventListener('dragstart', function(e) {
-                e.dataTransfer.setData('text/plain', draggable.id);
-            });
-        });
 
-        // Make canvas a dropzone
-            var canvas = document.getElementById('canvas');
-            canvas.addEventListener('dragover', function(e) {
-            e.preventDefault();
-        });
-        canvas.addEventListener('drop', function(e) {
-            e.preventDefault();
-            var id = e.dataTransfer.getData('text/plain');
-            var draggable = document.getElementById(id);
-            if (draggable) {
-                draggable.style.left = e.pageX + 'px';
-            }
-            draggable.style.top = e.pageY + 'px';
-            canvas.appendChild(draggable);
-        });
+            // Rest of the code that depends on the processed documentation
+        }
 
-        // Make canvas draggable
-        var pos = { top: 0, left: 0, x: 0, y: 0 };
-        var isDown = false;
+        function saveDocumentation() {
+            localStorage.setItem('documentation', JSON.stringify(documentation));
+        }
 
-        canvas.addEventListener('mousedown', function(e) {
-            isDown = true;
-            pos = {
-                left: canvas.scrollLeft,
-                top: canvas.scrollTop,
-                // Get the current mouse position
-                x: e.clientX,
-                y: e.clientY,
+        function loadDocumentation() {
+            var retrievedData = localStorage.getItem('documentation');
+            documentation = JSON.parse(retrievedData);
+        }
+
+        
+        var drag = false;
+        var dragViewport = false;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function getMouseRelPosition(e) {
+            var rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
             };
-        });
+        }
 
-        document.addEventListener('mousemove', function(e) {
-            if (isDown) {
-                // How far the mouse has been moved
-                var dx = e.clientX - pos.x;
-                var dy = e.clientY - pos.y;
+        
+        /**
+         * Returns the square that was clicked based on the mouse coordinates. Retuns null when clicked outside all squares.
+         * @param {Object} mouse - The mouse object containing the x and y coordinates.
+         * @returns {Object|null} - The clicked square object or null if no square was clicked.
+         */
+        function getClickedSquare(mouse) {
+            var clickedSquare = null;
+            documentation.forEach(function(square) {
+                if (mouse.x > square.viz.x && mouse.x < square.viz.x + square.viz.size && mouse.y > square.viz.y && mouse.y < square.viz.y + square.viz.size) {
+                    clickedSquare = square;
+                }
+            });
+            return clickedSquare;
+        }
 
-                // Scroll the element
-                canvas.scrollTop = pos.top - dy;
-                canvas.scrollLeft = pos.left - dx;
+        var activeSquare = null;
+        function activateSquare(square) {
+            square.active = true;
+            activeSquare = square;
+        }
+
+        function deactivateAllSquares() {
+            //TODO: Loop through all active when there can be all active
+            if (activeSquare) {
+                activeSquare.active = false;
+                activeSquare = null;
+            }
+        }
+
+        canvas.addEventListener('mousedown', function (e) {
+            var mouse = getMouseRelPosition(e);
+            var clickedSquare = getClickedSquare(mouse);
+            
+            if (clickedSquare) {
+                clickedSquare.drag = true;
+            } else {
+                dragViewport = true;
+                viewportX = mouse.x;
+                viewportY = mouse.y;
             }
         });
 
-        document.addEventListener('mouseup', function() {
-            isDown = false;
+        canvas.addEventListener('mouseup', function () {
+            documentation.forEach(function(square) {
+                square.drag = false;
+            });
+            dragViewport = false;
         });
+
+        canvas.addEventListener('mousemove', function (e) {
+            mouseX = e.clientX - canvasPos.x;
+            mouseY = e.clientY - canvasPos.y;
+            documentation.forEach(function(square) {
+                if (square.drag) {
+                    square.viz.x = mouseX - square.viz.size / 2;
+                    square.viz.y = mouseY - square.viz.size / 2;
+                }
+            });
+            if (dragViewport) {
+                var dx = mouseX - viewportX;
+                var dy = mouseY - viewportY;
+                documentation.forEach(function(square) {
+                    square.viz.x += dx;
+                    square.viz.y += dy;
+                });
+                viewportX = mouseX;
+                viewportY = mouseY;
+            }
+        });
+
+        canvas.addEventListener("click", function (e) {
+            var mouse = getMouseRelPosition(e);
+            var clickedSquare = getClickedSquare(mouse);
+            if(clickedSquare) {
+                deactivateAllSquares();
+                activateSquare(clickedSquare);
+            } else {
+                deactivateAllSquares();
+            }
+        });
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            documentation.forEach(function(square) {
+                if(square.active) {
+                    ctx.fillStyle = "blue";
+                    ctx.fillRect(square.viz.x, square.viz.y, 50,50);
+                } else {
+                    var icon = new Image();
+                    icon.src = square.icon;
+                    ctx.drawImage(icon, square.viz.x, square.viz.y, 50, 50);
+                }
+                
+                // Draw arrows from parent squares
+                square.parents.forEach(function(parentId) {
+                    var parentSquare = documentation.find(function(square) {
+                        return square.id === parentId;
+                    });
+                    
+                    if (parentSquare) {
+                        ctx.beginPath();
+                        ctx.moveTo(parentSquare.viz.x + 25, parentSquare.viz.y + 25);
+                        ctx.lineTo(square.viz.x + 25, square.viz.y + 25);
+                        ctx.strokeStyle = "black";
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        // Draw arrowhead
+                        var angle = Math.atan2(square.viz.y + 25 - (parentSquare.viz.y + 25), square.viz.x + 25 - (parentSquare.viz.x + 25));
+                        ctx.lineTo(square.viz.x + 25 - 10 * Math.cos(angle - Math.PI / 6), square.viz.y + 25 - 10 * Math.sin(angle - Math.PI / 6));
+                        ctx.lineTo(square.viz.x + 25, square.viz.y + 25);
+                        ctx.lineTo(square.viz.x + 25 - 10 * Math.cos(angle + Math.PI / 6), square.viz.y + 25 - 10 * Math.sin(angle + Math.PI / 6));
+                        ctx.fillStyle = "black";
+                        ctx.fill();
+                    }
+                });
+            });
+            
+            requestAnimationFrame(update);
+        }
+        function getPosition(el) {
+            var xPosition = 0;
+            var yPosition = 0;
+
+            while (el) {
+                xPosition += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+                yPosition += (el.offsetTop - el.scrollTop + el.clientTop);
+                el = el.offsetParent;
+            }
+            return {
+                x: xPosition,
+                y: yPosition
+            };
+        }
 
     </script>
 </body>
