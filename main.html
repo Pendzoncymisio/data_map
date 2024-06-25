@@ -169,7 +169,37 @@
 
         function update() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Draws squares for groups
+            // TODO This calculation should not be done each frame
+            let groups = documentation.map(item => item.groups);
+            let uniqueGroups = [...new Set(groups)];
+
+            uniqueGroups.forEach(function(group) {
+                let filteredSquares = documentation.filter(item => item.groups === group);
+
+                // Initialize variables for minimum and maximum coordinates
+                let minX = Number.MAX_VALUE;
+                let minY = Number.MAX_VALUE;
+                let maxX = Number.MIN_VALUE;
+                let maxY = Number.MIN_VALUE;
+
+                filteredSquares.forEach(function(square) {
+                    // Update minimum and maximum x coordinates
+                    minX = Math.min(minX, square.viz.x);
+                    maxX = Math.max(maxX, square.viz.x);
+
+                    // Update minimum and maximum y coordinates
+                    minY = Math.min(minY, square.viz.y);
+                    maxY = Math.max(maxY, square.viz.y);
+                });
+                ctx.fillStyle = "grey";
+                ctx.fillRect(minX, minY, maxX - minX + 70, maxY - minY + 70);
+            });
+
+            // Draws icons
             documentation.forEach(function(square) {
+
+                
                 if(square.active) {
                     ctx.fillStyle = "blue";
                     ctx.fillRect(square.viz.x, square.viz.y, 50,50);
@@ -178,6 +208,10 @@
                     icon.src = square.icon;
                     ctx.drawImage(icon, square.viz.x, square.viz.y, 50, 50);
                 }
+
+                ctx.fillStyle = "black";
+                ctx.font = "12px Arial";
+                ctx.fillText(square.id, square.viz.x + 20, square.viz.y + 70);
                 
                 // Draw arrows from parent squares
                 square.parents.forEach(function(parentId) {
@@ -188,13 +222,28 @@
                     if (parentSquare) {
                         ctx.beginPath();
                         ctx.moveTo(parentSquare.viz.x + 25, parentSquare.viz.y + 25);
+
+                        // Calculate the midpoint between the parent square and the current square
+                        var midX = (parentSquare.viz.x + square.viz.x) / 2;
+                        var midY = (parentSquare.viz.y + square.viz.y) / 2;
+
+                        var angle = Math.atan2(square.viz.y + 25 - (parentSquare.viz.y), square.viz.x + 25 - (parentSquare.viz.x));
+
+                        // Draw a vertical line from the parent square to the midpoint
+                        ctx.lineTo(midX, parentSquare.viz.y + 25);
+
+                        // Draw a horizontal line from the midpoint to the current square
+                        ctx.lineTo(midX, square.viz.y + 25);
                         ctx.lineTo(square.viz.x + 25, square.viz.y + 25);
+
                         ctx.strokeStyle = "black";
                         ctx.lineWidth = 2;
                         ctx.stroke();
 
                         // Draw arrowhead
-                        var angle = Math.atan2(square.viz.y + 25 - (parentSquare.viz.y + 25), square.viz.x + 25 - (parentSquare.viz.x + 25));
+                        
+                        //console.log(angle);
+                        ctx.beginPath();
                         ctx.lineTo(square.viz.x + 25 - 10 * Math.cos(angle - Math.PI / 6), square.viz.y + 25 - 10 * Math.sin(angle - Math.PI / 6));
                         ctx.lineTo(square.viz.x + 25, square.viz.y + 25);
                         ctx.lineTo(square.viz.x + 25 - 10 * Math.cos(angle + Math.PI / 6), square.viz.y + 25 - 10 * Math.sin(angle + Math.PI / 6));
