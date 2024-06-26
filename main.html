@@ -3,7 +3,11 @@
     <title>Draggable Square</title>
     <style>
         body { margin:0; }
-        canvas { background:#ddd; display:block; }
+        canvas {
+            background:#ddd;
+            display:block;
+            flex: 2;
+        }
         .save-button {
             position: absolute;
             top: 10px;
@@ -14,15 +18,48 @@
             top: 10px;
             right: 60px;
         }
+        .update-button {
+            position: absolute;
+            top: 10px;
+            right: 100px;
+        }
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #properties {
+            flex: 1;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <button class="save-button" onclick="saveDocumentation()">SAVE</button>
-    <button class="load-button" onclick="loadDocumentation()">LOAD</button>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        <div id="properties">
+            <button class="save-button" onclick="saveDocumentation()">SAVE</button>
+            <button class="load-button" onclick="loadDocumentation()">LOAD</button>
+            <button class="update-button" onclick="updateDocumentation()">UPDATE</button>
+            <textarea id="squareProperties" placeholder="Enter text here" style="margin-top: 50px;" rows="100"></textarea>
+        </div>
+    </div>
+
 
     <script>
         var canvas = document.getElementById('canvas');
+
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth * (2 / 3);
+            canvas.height = window.innerHeight;
+            // Redraw your canvas here after resizing
+        });
+
+        window.addEventListener('load', function() {
+            canvas.width = window.innerWidth * (2 / 3);
+            canvas.height = window.innerHeight;
+        });
+
         var ctx = canvas.getContext('2d');
 
         var canvasPos = getPosition(canvas);
@@ -70,6 +107,17 @@
             var retrievedData = localStorage.getItem('documentation');
             documentation = JSON.parse(retrievedData);
         }
+            
+        function updateDocumentation() {
+            // Get the user input from the squareProperties field
+            var userInput = document.getElementById('squareProperties').value;
+            var userInputParsed = JSON.parse(userInput);
+            // Update the active square's description with the user input
+            if (activeSquare) {
+                let activeSquareIndex = documentation.findIndex(square => square.id === activeSquare.id);
+                documentation[activeSquareIndex] = userInputParsed;
+            }
+        }
 
         
         var drag = false;
@@ -105,6 +153,9 @@
         function activateSquare(square) {
             square.active = true;
             activeSquare = square;
+
+            var squarePropertiesInput = document.getElementById('squareProperties');
+            squarePropertiesInput.value = JSON.stringify(activeSquare, null, 2);
         }
 
         function deactivateAllSquares() {
@@ -210,7 +261,7 @@
                 }
 
                 ctx.fillStyle = "black";
-                ctx.font = "12px Arial";
+                ctx.font = "12px Consolas";
                 ctx.fillText(square.id, square.viz.x + 20, square.viz.y + 70);
                 
                 // Draw arrows from parent squares
