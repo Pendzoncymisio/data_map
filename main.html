@@ -220,35 +220,77 @@
                     });
                     
                     if (parentSquare) {
-                        ctx.beginPath();
-                        ctx.moveTo(parentSquare.viz.x + 25, parentSquare.viz.y + 25);
+
 
                         // Calculate the midpoint between the parent square and the current square
+
+                        var diffX = parentSquare.viz.x - square.viz.x
+                        var diffY = parentSquare.viz.y - square.viz.y
                         var midX = (parentSquare.viz.x + square.viz.x) / 2;
                         var midY = (parentSquare.viz.y + square.viz.y) / 2;
 
-                        var angle = Math.atan2(square.viz.y + 25 - (parentSquare.viz.y), square.viz.x + 25 - (parentSquare.viz.x));
+                        var startX, startY
+                        var endX, endY
+                        // Drawing lines. probably not optimal and should be cached not calculated every time
+                        ctx.beginPath();
+                        if (Math.abs(diffX) < Math.abs(diffY)) {
+                            //First line vertical
 
-                        // Draw a vertical line from the parent square to the midpoint
-                        ctx.lineTo(midX, parentSquare.viz.y + 25);
-
-                        // Draw a horizontal line from the midpoint to the current square
-                        ctx.lineTo(midX, square.viz.y + 25);
-                        ctx.lineTo(square.viz.x + 25, square.viz.y + 25);
-
+                            // Check start square
+                            if (diffY > 0) {
+                                startX = parentSquare.viz.x + 25 //point to the TOP
+                                startY = parentSquare.viz.y
+                            } else {
+                                startX = parentSquare.viz.x + 25 //point to the BOTTOM
+                                startY = parentSquare.viz.y + 50
+                            }
+                            // Check end square
+                            if (diffX > 0) {
+                                
+                                endX = square.viz.x + 50 //point to the LEFT
+                                endY = square.viz.y + 25
+                            } else {
+                                endX = square.viz.x //point to the RIGHT
+                                endY = square.viz.y + 25
+                            }
+                            ctx.moveTo(startX, startY);
+                            ctx.lineTo(startX, midY);
+                            ctx.lineTo(endX,endY)
+                        } else {
+                            //First line horizontal
+                            if (diffX > 0) {
+                                
+                                startX = parentSquare.viz.x //point to the LEFT
+                                startY = parentSquare.viz.y + 25
+                                ctx.moveTo(startX, startY);
+                            } else {
+                                startX = parentSquare.viz.x + 50//point to the RIGHT
+                                startY = parentSquare.viz.y + 25
+                                ctx.moveTo(startX, startY);
+                            }
+                            // Check end square
+                            if (diffY > 0) {
+                                endX = square.viz.x + 25 //point to the BOTTOM
+                                endY = square.viz.y + 50
+                            } else {
+                                endX = square.viz.x +25 //point to the TOP
+                                endY = square.viz.y
+                            }
+                            ctx.moveTo(startX, startY);
+                            ctx.lineTo(midX, startY);
+                            ctx.lineTo(endX,endY)
+                        }
+                        
+                        
                         ctx.strokeStyle = "black";
                         ctx.lineWidth = 2;
                         ctx.stroke();
 
-                        // Draw arrowhead
-                        
-                        //console.log(angle);
                         ctx.beginPath();
-                        ctx.lineTo(square.viz.x + 25 - 10 * Math.cos(angle - Math.PI / 6), square.viz.y + 25 - 10 * Math.sin(angle - Math.PI / 6));
-                        ctx.lineTo(square.viz.x + 25, square.viz.y + 25);
-                        ctx.lineTo(square.viz.x + 25 - 10 * Math.cos(angle + Math.PI / 6), square.viz.y + 25 - 10 * Math.sin(angle + Math.PI / 6));
+                        ctx.arc(endX, endY, 5, 0, 2 * Math.PI);
                         ctx.fillStyle = "black";
                         ctx.fill();
+                        ctx.closePath();
                     }
                 });
             });
