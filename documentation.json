@@ -1,18 +1,25 @@
-[
-    {
-        "id":"EMR_1",
+{
+    "EMR_1":{
         "icon":"EMR.png",
         "description":"EMR for generating data",
-        "groups":"HCA",
+        "group":"HCA",
         "show_level":1,
         "viz":{"x":-200,"y":-200,"size":100}
     },
-    {
-        "id":"S3_1",
+    "S3_1": {
         "icon":"S3.png",
         "description": "S3 where generated data is saved",
-        "parents":["EMR_1"],
-        "groups":"HCA",
+        "sources":["EMR_1"],
+        "group":"HCA",
         "show_level":1
+    },
+    "HCA":{
+        "icon":"EMR.png",
+        "viz":{"x":200,"y":200,"size":100},
+        "group":"HCA2"
+    },
+    "HCA2":{
+        "icon":"EMR.png",
+        "viz":{"x":200,"y":200,"size":100}
     }
-]
+}
