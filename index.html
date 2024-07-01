@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>Draggable Square</title>
+    <style>
+        body { margin:0; }
+        canvas {
+            background:#ddd;
+            display:block;
+            flex: 2;
+        }
+        .save-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .load-button {
+            position: absolute;
+            top: 10px;
+            right: 60px;
+        }
+        .update-button {
+            position: absolute;
+            top: 10px;
+            right: 100px;
+        }
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #properties {
+            flex: 1;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        <div id="properties">
+            <button class="save-button" onclick="saveDocumentation()">SAVE</button>
+            <button class="load-button" onclick="loadDocumentation()">LOAD</button>
+            <button class="update-button" onclick="updateDocumentation()">UPDATE</button>
+            <textarea id="squareProperties" placeholder="Enter text here" style="margin-top: 50px;" rows="100"></textarea>
+        </div>
+    </div>
+
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

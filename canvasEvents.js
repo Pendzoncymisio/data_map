@@ -29,7 +29,6 @@ function getMouseRelPosition(e) {
  * @returns {Object|null} - The clicked square object or null if no square was clicked.
  */
 function getClickedSquare(mouse, documentation) {
-    console.log(documentation);
     var clickedSquare = null;
     documentation.forEach(function(square) {
         if (mouse.x > square.viz.x && mouse.x < square.viz.x + square.viz.size && mouse.y > square.viz.y && mouse.y < square.viz.y + square.viz.size) {
@@ -39,13 +38,16 @@ function getClickedSquare(mouse, documentation) {
     return clickedSquare;
 }
 
-const canvasPos = getPosition(canvas);
+
 var mouseX = 0;
 var mouseY = 0;
 var dragViewport = false;
 var viewportX, viewportY;
 
 export function setupCanvasEvents(canvas, documentation) {
+    const canvasPos = getPosition(canvas);
+
+    
     canvas.addEventListener('mousedown', function (e) {
         var mouse = getMouseRelPosition(e);
         var clickedSquare = getClickedSquare(mouse, documentation);
@@ -71,8 +73,11 @@ export function setupCanvasEvents(canvas, documentation) {
         mouseY = e.clientY - canvasPos.y;
         documentation.forEach(function(square) {
             if (square.drag) {
-                square.viz.x = mouseX - square.viz.size / 2;
-                square.viz.y = mouseY - square.viz.size / 2;
+                /*square.viz.x = mouseX - square.viz.size / 2;
+                square.viz.y = mouseY - square.viz.size / 2;*/
+                let gridSize = 20
+                square.viz.x = Math.round((mouseX - square.viz.size / 2)/gridSize )*gridSize;
+                square.viz.y = Math.round((mouseY - square.viz.size / 2)/gridSize )*gridSize;
             }
         });
         if (dragViewport) {
