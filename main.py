@@ -4,7 +4,6 @@ from PyQt5.QtGui import QPainter, QColor
 from PyQt5.QtCore import Qt
 
 from load_documentation import load_documentation
-from draw_visualization import drawRootVisualization
 
 class MainWindow(QMainWindow):
     def __init__(self):
