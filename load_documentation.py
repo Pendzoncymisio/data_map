@@ -42,15 +42,26 @@ def load_documentation():
         else:
             doc_obj.make_final()
 
+    # Tree traverse to calculate final position from relative position
+    root_nodes = [doc_obj for doc_obj in docs_obj_dict.values() if not doc_obj.parent_doc]
+    for root_node in root_nodes:
+        #TODO: Fix
+        root_node.tree_position_update()
+        pass
+
+    # Third pass after we know exact positions of all objects
+    for document_id, doc_obj in docs_obj_dict.items():
         sources = [docs_obj_dict[source_id] for source_id in doc_obj.payload.get("sources", [])]
         for source in sources:
             line = Line(source, doc_obj)
             source.outbound_lines.append(line)
             doc_obj.inbound_lines.append(line)
 
+        if doc_obj.group:
+            doc_obj.recalculate_rect()
+
     print("Documentation loaded!")
 
-    #return root_nodes, lines_list
     return docs_obj_dict
 
 if __name__ == "__main__":
