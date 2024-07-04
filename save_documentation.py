@@ -18,4 +18,4 @@ def save_documentation(docs_obj_dict):
     # Open the file in write mode
     with open('documentation.json', 'w') as file:
         # Write the transformed dictionary to the file as JSON
-        json.dump(transformed_dict, file)
+        json.dump(transformed_dict, file, indent=2)
