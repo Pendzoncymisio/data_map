@@ -158,9 +158,13 @@ class DocsObj(QGraphicsItem):
 
     def get_rel_pos(self):
         if self.parent_doc:
+            """There is a situation where this might be useful
             rel_x = self.pos().x() - self.parent_doc.pos().x()
-            rel_y = self.pos().y() - self.parent_doc.pos().y()
-            return {"x": rel_x, "y": rel_y}
+            rel_y = self.pos().y() - self.parent_doc.pos().y()"""
+            if self.group:
+                return {"x": self.x - self.parent_doc.x, "y": self.y - self.parent_doc.y}
+            else:
+                return {"x": self.pos().x() - self.parent_doc.x, "y": self.pos().y() - self.parent_doc.y}
         else:
             return {"x": self.pos().x(), "y": self.pos().y()}
     
@@ -179,7 +183,10 @@ class DocsObj(QGraphicsItem):
         if text:
             window.sidebar.text_area.clear()
             #TODO: Think if that should be done as doc_ref.update_payload(payload)
-            self.payload = json.loads(text)
+            try:
+                self.payload = json.loads(text)
+            except json.JSONDecodeError:
+                print("Invalid JSON, try again it.")
             # TODO: Handle changing of the ID
             window.sidebar.id_line.clear()
             self.__update_viz()
