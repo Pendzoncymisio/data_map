@@ -1,6 +1,6 @@
 import json
 
-from docs_obj import DocsObj
+from doc_obj import DocObj
 from line import Line
 
 def load_raw_documentation():
@@ -16,8 +16,7 @@ def load_documentation():
     group_dict = {}
 
     for document_id, document_value in raw_documentation_dict.items():
-        doc_obj = DocsObj(document_id, document_value)
-        docs_obj_dict[document_id] = doc_obj
+        doc_obj = DocObj(document_id, document_value, docs_obj_dict)
 
         # Handle parent groups
         group_id = document_value.get("group", "")
@@ -45,7 +44,6 @@ def load_documentation():
     # Tree traverse to calculate final position from relative position
     root_nodes = [doc_obj for doc_obj in docs_obj_dict.values() if not doc_obj.parent_doc]
     for root_node in root_nodes:
-        #TODO: Fix
         root_node.tree_position_update()
         pass
 
@@ -58,7 +56,7 @@ def load_documentation():
             doc_obj.inbound_lines.append(line)
 
         if doc_obj.group:
-            doc_obj.recalculate_rect()
+            doc_obj.parent_update_position()
 
     print("Documentation loaded!")
 

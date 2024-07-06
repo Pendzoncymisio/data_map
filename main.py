@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QWidget, QGraphicsScene,QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QGraphicsRectItem
-from PyQt5.QtGui import QPainter, QColor
+from PyQt5.QtGui import QPainter, QImage
 from PyQt5.QtCore import QRectF, Qt
 
 from load_documentation import load_documentation
@@ -53,6 +53,11 @@ class MainWindow(QMainWindow):
         self.__draw_inboud_lines(added_obj)
         self.docs_obj_dict[added_obj.id] = added_obj
 
+    def collapse_wrapper(self):
+        selected_obj = self.main_part.scene().selectedItems()[0]
+        selected_obj.collapse()
+        self.scene.update()
+
     def change_id_wrapper(self):
         selected_obj = self.main_part.scene().selectedItems()[0]
         old_id = selected_obj.id
@@ -72,6 +77,19 @@ class MainWindow(QMainWindow):
     def __draw_inboud_lines(self, node):
         for line in node.inbound_lines:
             self.main_part.scene().addItem(line)
+
+    def export_scene_to_jpg(self, filename):
+        # Create a QImage object with the same size as the scene
+        image = QImage(self.scene.width(), self.scene.height(), QImage.Format_ARGB32)
+        image.fill(Qt.white)  # Fill the image with white
+
+        # Create a QPainter object and render the scene into the image
+        painter = QPainter(image)
+        self.scene.render(painter)
+        painter.end()
+
+        # Save the image to a file
+        image.save(filename)
 
 class SideBar(QWidget):
     def __init__(self, window):
@@ -116,6 +134,9 @@ class SideBar(QWidget):
         add_new_sink_button.clicked.connect(window.create_new_sink_wrapper)
         sidebar_layout.addWidget(add_new_sink_button)
 
+        collapse_button = QPushButton("Collapse")
+        collapse_button.clicked.connect(window.collapse_wrapper)
+        sidebar_layout.addWidget(collapse_button)
 
         self.setLayout(sidebar_layout)
 
@@ -151,11 +172,33 @@ class MainPart(QGraphicsView):
             self._is_panning = False
         super().mouseReleaseEvent(event)
 
+import argparse
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--export', action='store_true')
+    parser.add_argument('--group')
+    args = parser.parse_args()
+
+
     app = QApplication(sys.argv)
     window = MainWindow()
-    window.show()
+
     window.load_documentation_wrapper()
-    window.update()
+
+
+    if args.export:
+        window.export_scene_to_jpg('output.jpg')  # Export the scene to a JPG image
+
+        if args.group:
+            window.main_part.scene().group_selected_items()
+            sys.exit(0)
+
+        else:
+            print("Warning: The --export flag was used without the --group flag. The scene was exported to a JPG but might be very big")
+
+        sys.exit(0)
+
+    window.show()
     sys.exit(app.exec())
 

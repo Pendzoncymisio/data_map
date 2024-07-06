@@ -1,25 +1,193 @@
 {
-    "EMR_1":{
-        "icon":"EMR.png",
-        "description":"EMR for generating data",
-        "group":"HCA",
-        "show_level":1,
-        "viz":{"x":-200,"y":-200,"size":100}
-    },
-    "S3_1": {
-        "icon":"S3.png",
-        "description": "S3 where generated data is saved",
-        "sources":["EMR_1"],
-        "group":"HCA",
-        "show_level":1
-    },
-    "HCA":{
-        "icon":"EMR.png",
-        "viz":{"x":200,"y":200,"size":100},
-        "group":"HCA2"
-    },
-    "HCA2":{
-        "icon":"EMR.png",
-        "viz":{"x":200,"y":200,"size":100}
+  "EMR_1": {
+    "icon": "EMR.png",
+    "description": "EMR for generating data",
+    "group": "HCA",
+    "viz": {
+      "x": 160.0,
+      "y": 220.0
     }
+  },
+  "S3_1": {
+    "icon": "S3.png",
+    "description": "S3 where generated data is saved",
+    "sources": [
+      "EMR_1"
+    ],
+    "group": "HCA",
+    "show_level": 1,
+    "viz": {
+      "x": 220.0,
+      "y": 380.0
+    }
+  },
+  "HCA": {
+    "icon": "EMR.png",
+    "group": "HCA2",
+    "viz": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "HCA2": {
+    "icon": "EMR.png",
+    "group": "HCA3",
+    "viz": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "HCA3": {
+    "icon": "EMR.png",
+    "group": "HCA4",
+    "viz": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "HCA4": {
+    "icon": "EMR.png",
+    "viz": {
+      "x": 160.0,
+      "y": 220.0
+    }
+  },
+  "BadaBimBadaBum": {
+    "icon": "S3.png",
+    "sources": [
+      "S3_1"
+    ],
+    "group": "HCA2",
+    "viz": {
+      "x": 260.0,
+      "y": 560.0
+    }
+  },
+  "Node1": {
+    "icon": "Node.png",
+    "description": "Node 1",
+    "sources": [
+      "EMR_1"
+    ],
+    "group": "Group1",
+    "viz": {
+      "x": 1200.0,
+      "y": 1200.0
+    }
+  },
+  "Node2": {
+    "icon": "Node.png",
+    "description": "Node 2",
+    "sources": [
+      "Node1"
+    ],
+    "group": "Group1",
+    "viz": {
+      "x": 560.0,
+      "y": 280.0
+    }
+  },
+  "Node3": {
+    "icon": "Node.png",
+    "description": "Node 3",
+    "sources": [
+      "Node2"
+    ],
+    "group": "Group1",
+    "viz": {
+      "x": 600.0,
+      "y": 440.0
+    }
+  },
+  "Node4": {
+    "icon": "Node.png",
+    "description": "Node 4",
+    "sources": [
+      "Node3"
+    ],
+    "group": "Group1",
+    "viz": {
+      "x": 700.0,
+      "y": 560.0
+    }
+  },
+  "Node5": {
+    "icon": "Node.png",
+    "description": "Node 5",
+    "sources": [
+      "Node4"
+    ],
+    "group": "Group2",
+    "viz": {
+      "x": 1700.0,
+      "y": 1700.0
+    }
+  },
+  "Node6": {
+    "icon": "Node.png",
+    "description": "Node 6",
+    "sources": [
+      "Node5"
+    ],
+    "group": "Group2",
+    "viz": {
+      "x": 780.0,
+      "y": 520.0
+    }
+  },
+  "Node7": {
+    "icon": "Node.png",
+    "description": "Node 7",
+    "sources": [
+      "Node6"
+    ],
+    "group": "Group3",
+    "viz": {
+      "x": 2000.0,
+      "y": 2000.0
+    }
+  },
+  "Node8": {
+    "icon": "Node.png",
+    "description": "Node 8",
+    "sources": [
+      "Node7"
+    ],
+    "group": "Group3",
+    "viz": {
+      "x": 900.0,
+      "y": 900.0
+    }
+  },
+  "Group1": {
+    "icon": "Group.png",
+    "group": "Group2",
+    "viz": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "Group2": {
+    "icon": "Group.png",
+    "group": "Group3",
+    "viz": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "Group3": {
+    "icon": "Group.png",
+    "group": "Group4",
+    "viz": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "Group4": {
+    "icon": "Group.png",
+    "viz": {
+      "x": 560.0,
+      "y": 280.0
+    }
+  }
 }
