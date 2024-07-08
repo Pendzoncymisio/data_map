@@ -8,7 +8,7 @@ def save_documentation(docs_obj_dict):
     for key, value in docs_obj_dict.items():
         # Get the payload from the object
         payload = value.payload
-        pos = value.get_rel_pos()
+        pos = value.position_abs_to_rel()
         print(key, pos)
         payload["viz"] = pos
         

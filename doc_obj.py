@@ -86,29 +86,35 @@ class DocObj(QGraphicsItem):
         if self.parent_doc:
             self.parent_doc.propagate_postion_up()
 
-    def update_rel_pos(self):
-        if self.parent_doc:
-            self.rel_x = self.pos().x() - self.parent_doc.pos().x()
-            self.rel_y = self.pos().y() - self.parent_doc.pos().y()
-        else:
-            self.rel_x = self.pos().x()
-            self.rel_y = self.pos().y()
-
     def update_child_position(self, z_value):
         self.setZValue(z_value)
-        self.update_rel_pos()
-        if self.parent_doc:
-            x = self.rel_x + self.parent_doc.pos().x()
-            y = self.rel_y + self.parent_doc.pos().y()
-            self.setPos(x, y)
-            #print(self.id, x, y, self.rel_x, self.rel_y, self.parent_doc.x, self.parent_doc.y)
+        pos = self.position_rel_to_abs()
+        self.setPos(pos["x"], pos["y"])
+        print(self.id, pos["x"], pos["y"], self.rel_x, self.rel_y, self.parent_doc.x, self.parent_doc.y)
         
         self.update()
 
     def propagate_postion_down(self, z_value=0):
+        
         for child in self.children_docs:
             child.update_child_position(z_value + 1)
             child.propagate_postion_down(z_value + 1)
+
+    def position_rel_to_abs(self):
+        if self.parent_doc:
+            abs_x = self.rel_x + self.parent_doc.pos().x()
+            abs_y = self.rel_y + self.parent_doc.pos().y()
+            return {"x": abs_x, "y": abs_y}
+        else:
+            return {"x": self.rel_x, "y": self.rel_y}
+
+    def position_abs_to_rel(self):
+        if self.parent_doc:
+            rel_x = self.pos().x() - self.parent_doc.pos().x()
+            rel_y = self.pos().y() - self.parent_doc.pos().y()
+            return {"x": rel_x, "y": rel_y}
+        else:
+            return {"x": self.pos().x(), "y": self.pos().y()}
     
     def paint(self, painter, option, widget):
         if self.group:
@@ -136,7 +142,7 @@ class DocObj(QGraphicsItem):
 
         # Wrap the text if it's too long
         text_rect = QRectF(text_x, text_y, text_width, 120)
-        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTo, str(self.id))
+        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTop, str(self.id))
 
     def boundingRect(self):
         if self.group:
