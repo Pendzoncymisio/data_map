@@ -86,24 +86,33 @@ class DocObj(QGraphicsItem):
         if self.parent_doc:
             self.parent_doc.propagate_postion_up()
 
-    def update_child_position(self, z_value):
+    def propagate_postion_down(self, z_value=0, parent_pos=None):
+        self.prepareGeometryChange()
         self.setZValue(z_value)
-        pos = self.position_rel_to_abs()
-        #print(self.id, pos["x"], pos["y"], self.rel_x, self.rel_y)
+        pos = self.position_rel_to_abs(parent_pos)
         self.setPos(pos["x"], pos["y"])
         self.update()
 
-    def propagate_postion_down(self, z_value=0):
-        
-        for child in self.children_docs:
-            child.update_child_position(z_value + 1)
-            child.propagate_postion_down(z_value + 1)
+        print(self.id, "my", self.pos().x(), self.pos().y(), "rel", self.rel_x, self.rel_y, "parent", (self.parent_doc.id, self.parent_doc.pos().x(), self.parent_doc.pos().y()) if self.parent_doc else None)
 
-    def position_rel_to_abs(self):
+        for child in self.children_docs:
+            child.propagate_postion_down(z_value + 1, parent_pos=pos)
+
+    def position_rel_to_abs(self, parent_pos=None):
+        """
+        Converts the relative position of the document object to absolute position.
+
+        Args:
+            parent_pos (dict): The parent position dictionary containing 'x' and 'y' coordinates. 
+                               Defaults to None if the document object has no parent.
+                               It has to be done that way because parent.pos() is not properly updated yet.
+
+        Returns:
+            dict: The absolute position dictionary containing 'x' and 'y' coordinates.
+        """
         if self.parent_doc:
-            abs_x = self.rel_x + self.parent_doc.pos().x()
-            abs_y = self.rel_y + self.parent_doc.pos().y()
-            #print(self.id, abs_x, abs_y, self.rel_x, self.rel_y, self.parent_doc.pos().x(), self.parent_doc.pos().y())
+            abs_x = self.rel_x + parent_pos["x"]
+            abs_y = self.rel_y + parent_pos["y"]
             return {"x": abs_x, "y": abs_y}
         else:
             return {"x": self.rel_x, "y": self.rel_y}

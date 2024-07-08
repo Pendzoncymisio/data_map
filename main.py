@@ -58,19 +58,7 @@ class MainWindow(QMainWindow):
     def __draw_viz(self, node):
         self.main_part.scene().addItem(node)
         for line in node.outbound_lines:
-            self.main_part.scene().addItem(line)
-
-    def __propagate_filter_down(self, node, filter_group, visible=False):
-        visible = (node.id == filter_group) or visible
-
-        node.setVisible(visible)
-        for line in node.outbound_lines + node.inbound_lines:
-            line.setVisible(visible)
-        for child in node.children_docs:
-            print(node.id, visible, node.id)
-            self.__propagate_filter_down(child, filter_group, visible)
-        
-               
+            self.main_part.scene().addItem(line)     
 
     def export_scene_to_jpg(self, filename, filter_group=None):
         # Create a QImage object with the same size as the scene
