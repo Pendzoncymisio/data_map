@@ -129,12 +129,12 @@ class DocObj(QGraphicsItem):
 
         # Calculate the position to display the text
         #text_x = self.boundingRect().center().x() - text_width / 2
-        text_width = 100
+        text_width = 120
         text_x = self.boundingRect().center().x() - text_width / 2
         text_y = self.boundingRect().bottom() + 10
 
         # Wrap the text if it's too long
-        text_rect = QRectF(text_x, text_y, text_width, 80)
+        text_rect = QRectF(text_x, text_y, text_width, 120)
         painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignCenter, str(self.id))
 
     def boundingRect(self):
@@ -284,9 +284,8 @@ class DocObj(QGraphicsItem):
         Args:
             icon_path (str): The path to the new icon.
         """
-        self.icon = icon_path
         self.payload["icon"] = icon_path
-        print(self.payload)
+        self.__select_square()
         self.__update_viz()
         self.update()
 
