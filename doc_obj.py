@@ -138,7 +138,7 @@ class DocObj(QGraphicsItem):
 
         # Wrap the text if it's too long
         text_rect = QRectF(text_x, text_y, text_width, 120)
-        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignCenter, str(self.id))
+        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTo, str(self.id))
 
     def boundingRect(self):
         if self.group:
