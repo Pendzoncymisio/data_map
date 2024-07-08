@@ -44,8 +44,7 @@ def load_documentation():
     # Tree traverse to calculate final position from relative position
     root_nodes = [doc_obj for doc_obj in docs_obj_dict.values() if not doc_obj.parent_doc]
     for root_node in root_nodes:
-        root_node.tree_position_update()
-        pass
+        root_node.propagate_postion_down()
 
     # Third pass after we know exact positions of all objects
     for document_id, doc_obj in docs_obj_dict.items():
@@ -56,7 +55,7 @@ def load_documentation():
             doc_obj.inbound_lines.append(line)
 
         if doc_obj.group:
-            doc_obj.parent_update_position()
+            doc_obj.propagate_postion_up()
 
     print("Documentation loaded!")
 

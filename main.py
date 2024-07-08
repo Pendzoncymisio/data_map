@@ -42,22 +42,6 @@ class MainWindow(QMainWindow):
     def save_documentation_wrapper(self):
         save_documentation(self.docs_obj_dict)
 
-    def create_new_source_wrapper(self):
-        added_obj = self.main_part.scene().selectedItems()[0].create_new_source()
-        self.__draw_viz(added_obj)
-        self.docs_obj_dict[added_obj.id] = added_obj
-
-    def create_new_sink_wrapper(self):
-        added_obj = self.main_part.scene().selectedItems()[0].create_new_sink()
-        self.__draw_viz(added_obj)
-        self.__draw_inboud_lines(added_obj)
-        self.docs_obj_dict[added_obj.id] = added_obj
-
-    def collapse_wrapper(self):
-        selected_obj = self.main_part.scene().selectedItems()[0]
-        selected_obj.collapse()
-        self.scene.update()
-
     def change_id_wrapper(self):
         selected_obj = self.main_part.scene().selectedItems()[0]
         old_id = selected_obj.id
@@ -74,13 +58,27 @@ class MainWindow(QMainWindow):
         for line in node.outbound_lines:
             self.main_part.scene().addItem(line)
 
-    def __draw_inboud_lines(self, node):
-        for line in node.inbound_lines:
-            self.main_part.scene().addItem(line)
+    def __propagate_filter_down(self, node, filter_group, visible=False):
+        visible = (node.id == filter_group) or visible
 
-    def export_scene_to_jpg(self, filename):
+        node.setVisible(visible)
+        for line in node.outbound_lines + node.inbound_lines:
+            line.setVisible(visible)
+        for child in node.children_docs:
+            print(node.id, visible, node.id)
+            self.__propagate_filter_down(child, filter_group, visible)
+        
+               
+
+    def export_scene_to_jpg(self, filename, filter_group=None):
         # Create a QImage object with the same size as the scene
-        image = QImage(self.scene.width(), self.scene.height(), QImage.Format_ARGB32)
+        # If a filter group is specified, propagate the filter down the tree, think if this shouldnt be done on the filtering level
+        if filter_group:
+            root_nodes = [doc_obj for doc_obj in self.docs_obj_dict.values() if not doc_obj.parent_doc]
+            for root_node in root_nodes:
+                    self.__propagate_filter_down(root_node, filter_group)
+
+        image = QImage(int(self.scene.width()), int(self.scene.height()), QImage.Format_ARGB32)
         image.fill(Qt.white)  # Fill the image with white
 
         # Create a QPainter object and render the scene into the image
@@ -125,18 +123,6 @@ class SideBar(QWidget):
         save_button = QPushButton("Save Documentation")
         save_button.clicked.connect(window.save_documentation_wrapper)
         sidebar_layout.addWidget(save_button)
-
-        add_new_source_button = QPushButton("Add New Source")
-        add_new_source_button.clicked.connect(window.create_new_source_wrapper)
-        sidebar_layout.addWidget(add_new_source_button)
-
-        add_new_sink_button = QPushButton("Add New Sink")
-        add_new_sink_button.clicked.connect(window.create_new_sink_wrapper)
-        sidebar_layout.addWidget(add_new_sink_button)
-
-        collapse_button = QPushButton("Collapse")
-        collapse_button.clicked.connect(window.collapse_wrapper)
-        sidebar_layout.addWidget(collapse_button)
 
         self.setLayout(sidebar_layout)
 
@@ -186,16 +172,10 @@ if __name__ == "__main__":
 
     window.load_documentation_wrapper()
 
-
     if args.export:
-        window.export_scene_to_jpg('output.jpg')  # Export the scene to a JPG image
-
-        if args.group:
-            window.main_part.scene().group_selected_items()
-            sys.exit(0)
-
-        else:
+        if not args.group:
             print("Warning: The --export flag was used without the --group flag. The scene was exported to a JPG but might be very big")
+        window.export_scene_to_jpg('output.jpg', args.group)  # Export the scene to a JPG image
 
         sys.exit(0)
 

@@ -1,11 +1,12 @@
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsSceneMouseEvent
-from PyQt5.QtCore import Qt, QRectF, QSizeF, QPointF
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QMenu
-
+import os
 import json
 
+from PyQt5.QtWidgets import QGraphicsItem, QFileDialog
+from PyQt5.QtCore import Qt, QRectF, QSizeF, QPointF
+from PyQt5.QtGui import QPixmap, QIcon
+
 from line import Line
+from context_menu import ContextMenu
 
 class DocObj(QGraphicsItem):
     def __init__(self, id, payload, docs_obj_dict):
@@ -27,6 +28,7 @@ class DocObj(QGraphicsItem):
         self.w = 100
         self.h = 100
         self.group = False
+        self.expandable = False
 
         self.outbound_lines = []
         self.inbound_lines = []
@@ -50,7 +52,7 @@ class DocObj(QGraphicsItem):
             for line in self.outbound_lines + self.inbound_lines:
                 line.update_position()
             if self.parent_doc:
-                self.parent_doc.parent_update_position()
+                self.parent_doc.propagate_postion_up()
             return new_pos
 
         elif change == QGraphicsItem.ItemSelectedChange:
@@ -64,7 +66,7 @@ class DocObj(QGraphicsItem):
         
         return super().itemChange(change, value)
     
-    def update_position(self):
+    def update_parent_position(self):
         margin = 20
         text_size = 20 #TODO: Make this a setting
         min_x = min(child.pos().x() for child in self.children_docs)
@@ -78,10 +80,34 @@ class DocObj(QGraphicsItem):
 
         self.update()
 
-    def parent_update_position(self):
-        self.update_position()
+    def propagate_postion_up(self, include_self=True):
+        if include_self:
+            self.update_parent_position()
         if self.parent_doc:
-            self.parent_doc.parent_update_position()
+            self.parent_doc.propagate_postion_up()
+
+    def update_child_position(self, z_value):
+        self.setZValue(z_value)
+        if self.parent_doc:
+            x = self.rel_x + self.parent_doc.pos().x()
+            y = self.rel_y + self.parent_doc.pos().y()
+            self.setPos(x, y)
+            #print(self.id, x, y, self.rel_x, self.rel_y, self.parent_doc.x, self.parent_doc.y)
+        
+        self.update()
+
+    def propagate_postion_down(self, z_value=0):
+        for child in self.children_docs:
+            child.update_child_position(z_value + 1)
+            child.propagate_postion_down(z_value + 1)
+
+    def get_rel_pos(self):
+        if self.parent_doc:
+            rel_x = self.pos().x() - self.parent_doc.pos().x()
+            rel_y = self.pos().y() - self.parent_doc.pos().y()
+            return {"x": rel_x, "y": rel_y}
+        else:
+            return {"x": self.pos().x(), "y": self.pos().y()}
     
     def paint(self, painter, option, widget):
         if self.group:
@@ -131,13 +157,13 @@ class DocObj(QGraphicsItem):
         """
         self.children_docs.remove(node)
 
-    def make_group(self):
+    def make_group(self, z_value=0):
         """
         Make the DocObj a group.
         """
         self.group = True
 
-        self.setZValue(0)
+        self.setZValue(z_value)
 
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsMovable, False)
@@ -148,32 +174,10 @@ class DocObj(QGraphicsItem):
         """
         self.group = False
 
-        self.setZValue(2)
+        self.setZValue(99)
         #self.setPos(QPointF(x, y))
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
-
-    def create_new_source(self):
-        new_obj = DocObj("new", {"icon": "default_icon.png", "viz": {"x": self.pos().x(), "y": self.pos().y() - 100}}, self.docs_obj_dict)
-        new_obj.make_final()
-        new_obj.setPos(self.pos().x(),self.pos().y() - 100)
-        line = Line(new_obj, self)
-        new_obj.outbound_lines.append(line)
-        self.inbound_lines.append(line)
-        self.scene().addItem(line)
-        self.scene().addItem(new_obj)
-        return new_obj
-    
-    def create_new_sink(self):
-        new_obj = DocObj("new", {"icon": "default_icon.png", "sources":[self.id], "viz": {"x": self.pos().x(), "y": self.pos().y() + 100}}, self.docs_obj_dict)
-        new_obj.make_final()
-        new_obj.setPos(self.pos().x(),self.pos().y() + 100)
-        line = Line(self, new_obj)
-        self.outbound_lines.append(line)
-        new_obj.inbound_lines.append(line)
-        self.scene().addItem(line)
-        self.scene().addItem(new_obj)
-        return new_obj
     
     def get_sources(self):
         return [line.source_doc for line in self.inbound_lines]
@@ -186,30 +190,6 @@ class DocObj(QGraphicsItem):
     
     #def add_sink(self, sink):
     #    self.outbound_lines.append(Line(self, sink))
-
-    def calculate_position(self):
-        if self.parent_doc:
-            x = self.rel_x + self.parent_doc.pos().x()
-            y = self.rel_y + self.parent_doc.pos().y()
-            self.setPos(x, y)
-            print(self.id, x, y, self.rel_x, self.rel_y, self.parent_doc.x, self.parent_doc.y)
-
-    def tree_position_update(self):
-        for child in self.children_docs:
-            child.calculate_position()
-            child.tree_position_update()
-
-    def get_rel_pos(self):
-        if self.parent_doc:
-            """There is a situation where this might be useful
-            rel_x = self.pos().x() - self.parent_doc.pos().x()
-            rel_y = self.pos().y() - self.parent_doc.pos().y()"""
-            if self.group:
-                return {"x": self.x - self.parent_doc.x, "y": self.y - self.parent_doc.y}
-            else:
-                return {"x": self.pos().x() - self.parent_doc.x, "y": self.pos().y() - self.parent_doc.y}
-        else:
-            return {"x": self.pos().x(), "y": self.pos().y()}
     
     def __select_square(self):
         scene = self.scene()
@@ -236,6 +216,29 @@ class DocObj(QGraphicsItem):
         else:
             print("No text in the text area - if you want to delete the node, press the delete button.")
     
+
+    def create_new_source(self):
+        new_obj = DocObj("new", {"icon": "default_icon.png", "viz": {"x": self.pos().x(), "y": self.pos().y() - 100}}, self.docs_obj_dict)
+        new_obj.make_final()
+        new_obj.setPos(self.pos().x(),self.pos().y() - 100)
+        line = Line(new_obj, self)
+        new_obj.outbound_lines.append(line)
+        self.inbound_lines.append(line)
+        self.scene().addItem(line)
+        self.scene().addItem(new_obj)
+        return new_obj
+    
+    def create_new_sink(self):
+        new_obj = DocObj("new", {"icon": "default_icon.png", "sources":[self.id], "viz": {"x": self.pos().x(), "y": self.pos().y() + 100}}, self.docs_obj_dict)
+        new_obj.make_final()
+        new_obj.setPos(self.pos().x(),self.pos().y() + 100)
+        line = Line(self, new_obj)
+        self.outbound_lines.append(line)
+        new_obj.inbound_lines.append(line)
+        self.scene().addItem(line)
+        self.scene().addItem(new_obj)
+        return new_obj
+
     def collapse(self):
         """
         Collapse the group, hiding all child objects and making the group behave as a final object.
@@ -251,6 +254,7 @@ class DocObj(QGraphicsItem):
         # Make the group behave as a final object
         self.make_final()
         self.expandable = True
+        self.propagate_postion_up(False) #does not include self in the updating position, as it is already final not a grup
 
     def expand(self):
         """
@@ -263,34 +267,50 @@ class DocObj(QGraphicsItem):
         for child in self.children_docs:
             child.setVisible(True)
         for line in child.outbound_lines + child.inbound_lines:
-                line.setVisible(True)
+            line.setVisible(True)
 
         # Make the object behave as a group again
         self.make_group()
-        self.parent_update_position()
+        self.propagate_postion_up()
+        self.expandable = False
+
+    def change_icon(self, icon_path):
+        """
+        Change the icon of the object.
+
+        Args:
+            icon_path (str): The path to the new icon.
+        """
+        self.icon = icon_path
+        self.payload["icon"] = icon_path
+        print(self.payload)
+        self.__update_viz()
+        self.update()
+
+    def context_change_icon(self):
+        """
+        Change the icon of the object.
+        """
+        icon_file, _ = QFileDialog.getOpenFileName(None, "Select Icon", "", "Icon Files (*.ico *.jpg *.jpeg *.png)")
+        
+        if icon_file:
+            relative_path = os.path.relpath(icon_file, os.getcwd())
+            self.change_icon(relative_path)
+
+    def open_in_browser(self):
+        """
+        Open the object in the default web browser.
+        """
+        link = self.payload.get("link")
+        if link:
+            import webbrowser
+            webbrowser.open(link)
+        else:
+            print("No link specified for this object.")
 
     def contextMenuEvent(self, event):
         """
         Show a context menu when the user right-clicks on the object.
         """
-        context_menu = QMenu()
-
-        # Add actions to the context menu
-        expand_action = context_menu.addAction("Expand")
-        collapse_action = context_menu.addAction("Collapse")
-        add_source_action = context_menu.addAction("Add Source")
-        add_sink_action = context_menu.addAction("Add Sink")
-
-        # Show the context menu at the current mouse position
-        action = context_menu.exec_(event.screenPos())
-
-        # Handle the selected action
-        if action == expand_action:
-            self.expand()
-        elif action == collapse_action:
-            self.collapse()
-        elif action == add_source_action:
-            self.create_new_source()
-        elif action == add_sink_action:
-            self.create_new_sink()
+        ContextMenu(self, event)
         

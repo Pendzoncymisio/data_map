@@ -18,7 +18,7 @@ class Line(QGraphicsItem):
 
     def paint(self, painter, option, widget):
         painter.drawLine(self.line)
-        print("Line", self.line.x1(), self.line.y1(), self.line.x2(), self.line.y2())
+        #print("Line", self.line.x1(), self.line.y1(), self.line.x2(), self.line.y2())
 
         arrow_size = 20.0
 
@@ -34,8 +34,7 @@ class Line(QGraphicsItem):
 
     def update_position(self):
         self.prepareGeometryChange()
-        #start_pos = self.source_doc.mapToScene(self.source_doc.boundingRect().center())
-        #end_pos = self.sink_doc.mapToScene(self.sink_doc.boundingRect().center())
+        
         x_diff = self.source_doc.pos().x() - self.sink_doc.pos().x()
         y_diff = self.source_doc.pos().y() - self.sink_doc.pos().y()
         if abs(x_diff) > abs(y_diff):
