@@ -128,11 +128,13 @@ class DocObj(QGraphicsItem):
         text_width = painter.fontMetrics().width(str(self.id))
 
         # Calculate the position to display the text
+        #text_x = self.boundingRect().center().x() - text_width / 2
+        text_width = 100
         text_x = self.boundingRect().center().x() - text_width / 2
         text_y = self.boundingRect().bottom() + 10
 
         # Wrap the text if it's too long
-        text_rect = QRectF(text_x, text_y, text_width, 20)
+        text_rect = QRectF(text_x, text_y, text_width, 80)
         painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignCenter, str(self.id))
 
     def boundingRect(self):
