@@ -113,14 +113,14 @@ class DocObj(QGraphicsItem):
         if self.group:
             rect = self.boundingRect()
             painter.setPen(Qt.black)
-            #painter.setBrush(Qt.white)
+            # painter.setBrush(Qt.white)
             painter.drawRoundedRect(rect, 10, 10)
-            
+
             icon_size = QSizeF(QPixmap(self.icon).size())
             icon_rect = QRectF(rect.topRight(), icon_size)
             painter.drawPixmap(icon_rect, QPixmap(self.icon), QRectF(QPixmap(self.icon).rect()))
             return
-        
+
         pixmap = QPixmap(self.icon)
         painter.drawPixmap(self.boundingRect(), pixmap, QRectF(pixmap.rect()))
 
@@ -131,8 +131,9 @@ class DocObj(QGraphicsItem):
         text_x = self.boundingRect().center().x() - text_width / 2
         text_y = self.boundingRect().bottom() + 10
 
-        # Draw the text
-        painter.drawText(QRectF(text_x, text_y, text_width, 20), Qt.AlignCenter, str(self.id))
+        # Wrap the text if it's too long
+        text_rect = QRectF(text_x, text_y, text_width, 20)
+        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignCenter, str(self.id))
 
     def boundingRect(self):
         if self.group:
