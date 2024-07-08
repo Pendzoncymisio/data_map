@@ -31,10 +31,12 @@ class MainWindow(QMainWindow):
         self.sidebar = SideBar(self)
         main_layout.addWidget(self.sidebar)
 
-    def load_documentation_wrapper(self):
+    def load_documentation_wrapper(self, filter_group=None):
         self.scene.clear()
         self.docs_obj_dict = load_documentation()
         for doc_obj in self.docs_obj_dict.values():
+            if filter_group and doc_obj.id != filter_group:
+                continue
             self.__draw_viz(doc_obj)
         
         self.scene.update()
