@@ -89,9 +89,8 @@ class DocObj(QGraphicsItem):
     def update_child_position(self, z_value):
         self.setZValue(z_value)
         pos = self.position_rel_to_abs()
+        #print(self.id, pos["x"], pos["y"], self.rel_x, self.rel_y)
         self.setPos(pos["x"], pos["y"])
-        print(self.id, pos["x"], pos["y"], self.rel_x, self.rel_y, self.parent_doc.x, self.parent_doc.y)
-        
         self.update()
 
     def propagate_postion_down(self, z_value=0):
@@ -104,6 +103,7 @@ class DocObj(QGraphicsItem):
         if self.parent_doc:
             abs_x = self.rel_x + self.parent_doc.pos().x()
             abs_y = self.rel_y + self.parent_doc.pos().y()
+            #print(self.id, abs_x, abs_y, self.rel_x, self.rel_y, self.parent_doc.pos().x(), self.parent_doc.pos().y())
             return {"x": abs_x, "y": abs_y}
         else:
             return {"x": self.rel_x, "y": self.rel_y}
@@ -142,7 +142,7 @@ class DocObj(QGraphicsItem):
 
         # Wrap the text if it's too long
         text_rect = QRectF(text_x, text_y, text_width, 120)
-        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTop, str(self.id))
+        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTop, str(self.id)+str(self.pos().x())+str(self.pos().y()))
 
     def boundingRect(self):
         if self.group:
