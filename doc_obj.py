@@ -88,6 +88,9 @@ class DocObj(QGraphicsItem):
 
     def update_child_position(self, z_value):
         self.setZValue(z_value)
+        rel_pos = self.get_rel_pos()
+        self.rel_x = rel_pos["x"]
+        self.rel_y = rel_pos["y"]
         if self.parent_doc:
             x = self.rel_x + self.parent_doc.pos().x()
             y = self.rel_y + self.parent_doc.pos().y()
