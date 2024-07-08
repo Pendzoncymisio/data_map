@@ -44,6 +44,7 @@ def load_documentation():
     # Tree traverse to calculate final position from relative position
     root_nodes = [doc_obj for doc_obj in docs_obj_dict.values() if not doc_obj.parent_doc]
     for root_node in root_nodes:
+        root_node.update_rel_pos()
         root_node.propagate_postion_down()
 
     # Third pass after we know exact positions of all objects

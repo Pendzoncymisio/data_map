@@ -86,11 +86,17 @@ class DocObj(QGraphicsItem):
         if self.parent_doc:
             self.parent_doc.propagate_postion_up()
 
+    def update_rel_pos(self):
+        if self.parent_doc:
+            self.rel_x = self.pos().x() - self.parent_doc.pos().x()
+            self.rel_y = self.pos().y() - self.parent_doc.pos().y()
+        else:
+            self.rel_x = self.pos().x()
+            self.rel_y = self.pos().y()
+
     def update_child_position(self, z_value):
         self.setZValue(z_value)
-        rel_pos = self.get_rel_pos()
-        self.rel_x = rel_pos["x"]
-        self.rel_y = rel_pos["y"]
+        self.update_rel_pos()
         if self.parent_doc:
             x = self.rel_x + self.parent_doc.pos().x()
             y = self.rel_y + self.parent_doc.pos().y()
@@ -103,14 +109,6 @@ class DocObj(QGraphicsItem):
         for child in self.children_docs:
             child.update_child_position(z_value + 1)
             child.propagate_postion_down(z_value + 1)
-
-    def get_rel_pos(self):
-        if self.parent_doc:
-            rel_x = self.pos().x() - self.parent_doc.pos().x()
-            rel_y = self.pos().y() - self.parent_doc.pos().y()
-            return {"x": rel_x, "y": rel_y}
-        else:
-            return {"x": self.pos().x(), "y": self.pos().y()}
     
     def paint(self, painter, option, widget):
         if self.group:
