@@ -4,7 +4,7 @@ from doc_obj import DocObj
 from line import Line
 
 def load_raw_documentation():
-    with open("./documentation.json", 'r') as file:
+    with open("../documentation/documentation.json", 'r') as file:
         data = json.load(file)
     return data    
 
