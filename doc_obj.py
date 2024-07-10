@@ -87,14 +87,25 @@ class DocObj(QGraphicsItem):
             self.parent_doc.propagate_postion_up()
 
     def propagate_postion_down(self, z_value=0, parent_pos=None):
+        """
+        Propagates the position down to the child documents recursively.
+
+        Args:
+            z_value (int): The z-value to set for the document.
+            parent_pos (dict): The absolute position of the parent document.
+
+        Returns:
+            None
+        """
         self.prepareGeometryChange()
         self.setZValue(z_value)
         pos = self.position_rel_to_abs(parent_pos)
         self.setPos(pos["x"], pos["y"])
         self.update()
 
-        print(self.id, "my", self.pos().x(), self.pos().y(), "rel", self.rel_x, self.rel_y, "parent", (self.parent_doc.id, self.parent_doc.pos().x(), self.parent_doc.pos().y()) if self.parent_doc else None)
-
+        #print(self.id, "my", self.pos().x(), self.pos().y(), "rel", self.rel_x, self.rel_y, "parent", (self.parent_doc.id, self.parent_doc.pos().x(), self.parent_doc.pos().y()) if self.parent_doc else None)
+        for line in self.outbound_lines + self.inbound_lines:
+                line.update_position()
         for child in self.children_docs:
             child.propagate_postion_down(z_value + 1, parent_pos=pos)
 
@@ -151,7 +162,7 @@ class DocObj(QGraphicsItem):
 
         # Wrap the text if it's too long
         text_rect = QRectF(text_x, text_y, text_width, 120)
-        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTop, str(self.id)+str(self.pos().x())+str(self.pos().y()))
+        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTop, str(self.id))
 
     def boundingRect(self):
         if self.group:
@@ -176,13 +187,11 @@ class DocObj(QGraphicsItem):
         """
         self.children_docs.remove(node)
 
-    def make_group(self, z_value=0):
+    def make_group(self):
         """
         Make the DocObj a group.
         """
         self.group = True
-
-        self.setZValue(z_value)
 
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsMovable, False)
@@ -216,6 +225,7 @@ class DocObj(QGraphicsItem):
         window = view.window() if view else None
         window.sidebar.text_area.setText(json.dumps(self.payload, indent=2))
         window.sidebar.id_line.setText(self.id)
+        print(self.zValue())
     
     def __deselect_square(self):
         scene = self.scene()
@@ -245,6 +255,12 @@ class DocObj(QGraphicsItem):
         self.inbound_lines.append(line)
         self.scene().addItem(line)
         self.scene().addItem(new_obj)
+        
+        if "sources" in self.payload:
+            self.payload["sources"].append(new_obj.id)
+        else:
+            self.payload["sources"] = [new_obj.id]
+        
         return new_obj
     
     def create_new_sink(self):
@@ -283,6 +299,9 @@ class DocObj(QGraphicsItem):
             print("Nothing to expand!")
             return
         # Show all child objects
+        self.setZValue(self.parent_doc.zValue() + 1)
+        self.propagate_postion_down(self.parent_doc.zValue() + 1, {"x": self.pos().x(), "y": self.pos().y()})
+
         for child in self.children_docs:
             child.setVisible(True)
         for line in child.outbound_lines + child.inbound_lines:

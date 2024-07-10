@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
         self.docs_obj_dict[new_id] = selected_obj
 
         for sink in selected_obj.get_sinks():
-            sink.payload["sources"] = [new_id if source == old_id else source for source in sink.payload["sources"]]
+            sink.payload["sources"] = [new_id if source == old_id else source for source in sink.payload.get("sources",[])]
 
     def __draw_viz(self, node):
         self.main_part.scene().addItem(node)
