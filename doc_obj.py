@@ -1,9 +1,9 @@
 import os
 import json
 
-from PyQt5.QtWidgets import QGraphicsItem, QFileDialog
-from PyQt5.QtCore import Qt, QRectF, QSizeF, QPointF
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt6.QtWidgets import QGraphicsItem, QFileDialog
+from PyQt6.QtCore import Qt, QRectF, QSizeF, QPointF
+from PyQt6.QtGui import QPixmap, QColor
 
 from line import Line
 from context_menu import ContextMenu
@@ -11,7 +11,7 @@ from context_menu import ContextMenu
 class DocObj(QGraphicsItem):
     def __init__(self, id, payload, docs_obj_dict):
         super().__init__()
-        self.setFlag(QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges)
 
         self.id = id
         self.payload = payload
@@ -42,7 +42,7 @@ class DocObj(QGraphicsItem):
         self.icon = self.payload.get("icon", "default_icon.png")  
 
     def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemPositionChange:
+        if change == QGraphicsItem.GraphicsItemChange.ItemPositionChange:
             #print(self.x, self.y, self.rel_x, self.rel_y, self.pos().x())
             grid_size = 20
             new_pos = value #TODO: Make this a setting, return value if not snapping
@@ -55,7 +55,7 @@ class DocObj(QGraphicsItem):
                 self.parent_doc.propagate_postion_up()
             return new_pos
 
-        elif change == QGraphicsItem.ItemSelectedChange:
+        elif change == QGraphicsItem.GraphicsItemChange.ItemSelectedChange:
             if value:
                 print("Square selected!", self.id)
                 self.__select_square()
@@ -139,7 +139,7 @@ class DocObj(QGraphicsItem):
     def paint(self, painter, option, widget):
         if self.group:
             rect = self.boundingRect()
-            painter.setPen(Qt.black)
+            painter.setPen(QColor("black"))
             # painter.setBrush(Qt.white)
             painter.drawRoundedRect(rect, 10, 10)
 
@@ -152,7 +152,7 @@ class DocObj(QGraphicsItem):
         painter.drawPixmap(self.boundingRect(), pixmap, QRectF(pixmap.rect()))
 
         # Calculate the width of the text
-        text_width = painter.fontMetrics().width(str(self.id))
+        text_width = painter.fontMetrics().horizontalAdvance(str(self.id))
 
         # Calculate the position to display the text
         #text_x = self.boundingRect().center().x() - text_width / 2
@@ -162,7 +162,7 @@ class DocObj(QGraphicsItem):
 
         # Wrap the text if it's too long
         text_rect = QRectF(text_x, text_y, text_width, 120)
-        painter.drawText(text_rect, Qt.TextWordWrap | Qt.AlignHCenter | Qt.AlignTop, str(self.id))
+        painter.drawText(text_rect, Qt.TextFlag.TextWordWrap | Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop, str(self.id))
 
     def boundingRect(self):
         if self.group:
@@ -193,8 +193,8 @@ class DocObj(QGraphicsItem):
         """
         self.group = True
 
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
-        self.setFlag(QGraphicsItem.ItemIsMovable, False)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
     
     def make_final(self):
         """
@@ -204,8 +204,8 @@ class DocObj(QGraphicsItem):
 
         self.setZValue(99)
         #self.setPos(QPointF(x, y))
-        self.setFlag(QGraphicsItem.ItemIsMovable)
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
     
     def get_sources(self):
         return [line.source_doc for line in self.inbound_lines]

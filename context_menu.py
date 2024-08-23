@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMenu
+from PyQt6.QtWidgets import QMenu
 
 class ContextMenu(QMenu):
 
@@ -18,7 +18,7 @@ class ContextMenu(QMenu):
         collapse_action.setEnabled(caller.group)
 
         # Show the context menu at the current mouse position
-        action = self.exec_(event.screenPos())
+        action = self.exec(event.screenPos())
 
         # Handle the selected action
         if action == expand_action:

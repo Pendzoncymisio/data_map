@@ -1,8 +1,8 @@
 import math
 
-from PyQt5.QtCore import QRectF, QLineF, QPointF
-from PyQt5.QtWidgets import QGraphicsItem
-from PyQt5.QtGui import QPolygonF
+from PyQt6.QtCore import QRectF, QLineF, QPointF
+from PyQt6.QtWidgets import QGraphicsItem
+from PyQt6.QtGui import QPolygonF
 
 class Line(QGraphicsItem):
     def __init__(self, startSquare, endSquare):

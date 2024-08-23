@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QWidget, QGraphicsScene,QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QGraphicsRectItem
-from PyQt5.QtGui import QPainter, QImage
-from PyQt5.QtCore import QRectF, Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QGraphicsView, QWidget, QGraphicsScene,QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QGraphicsRectItem
+from PyQt6.QtGui import QPainter, QImage
+from PyQt6.QtCore import QRectF, Qt
 
 from load_documentation import load_documentation
 from save_documentation import save_documentation
@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
         # Create the main part widget and add it to the main layout
         self.scene = QGraphicsScene()
         self.main_part = MainPart(self)
-        self.main_part.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        self.main_part.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
         main_layout.addWidget(self.main_part)
 
         # Create the sidebar widget and add it to the main layout
@@ -128,7 +128,7 @@ class MainPart(QGraphicsView):
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
         # Check if the left mouse button is pressed and no final item is selected
-        if event.button() == Qt.LeftButton and not [obj for obj in self.scene().selectedItems() if not obj.group]:
+        if event.button() == Qt.MouseButton.LeftButton and not [obj for obj in self.scene().selectedItems() if not obj.group]:
             self._is_panning = True
             self._pan_start_x = event.x()
             self._pan_start_y = event.y()
@@ -144,7 +144,7 @@ class MainPart(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self._is_panning = False
         super().mouseReleaseEvent(event)
 
