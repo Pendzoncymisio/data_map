@@ -9,7 +9,7 @@ from line import Line
 from context_menu import ContextMenu
 
 class DocObj(QGraphicsItem):
-    def __init__(self, id, payload, docs_obj_dict):
+    def __init__(self, id, payload, docs_obj_dict, source_file):
         super().__init__()
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges)
 
@@ -18,6 +18,8 @@ class DocObj(QGraphicsItem):
 
         self.docs_obj_dict = docs_obj_dict # Store reference to the dictionary of all DocObj objects
         docs_obj_dict[id] = self # Object itself is responsible to add itself to the dictionary
+
+        self.source_file = source_file
 
         self.icon = payload.get("icon", "default_icon.png")
         viz = payload.get("viz", {"x": 0, "y": 0})

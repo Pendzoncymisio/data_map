@@ -22,20 +22,24 @@ def load_raw_documentation():
 
 def load_documentation():
     print("Loading documentation...")
-    raw_documentation_dict = load_raw_documentation()
+    #raw_documentation_dict = load_raw_documentation()
 
     docs_obj_dict = {}
     group_dict = {}
 
-    for document_id, document_value in raw_documentation_dict.items():
-        doc_obj = DocObj(document_id, document_value, docs_obj_dict)
+    for file_path in get_files_to_open():
+        with open(file_path, 'r') as file:
+            raw_documentation_dict = json.load(file)
 
-        # Handle parent groups
-        group_id = document_value.get("group", "")
-        if group_id:
-            if group_id not in group_dict:
-                group_dict[group_id] = []
-            group_dict[group_id].append(doc_obj)
+        for document_id, document_value in raw_documentation_dict.items():
+            doc_obj = DocObj(document_id, document_value, docs_obj_dict, file_path)
+
+            # Handle parent groups
+            group_id = document_value.get("group", "")
+            if group_id:
+                if group_id not in group_dict:
+                    group_dict[group_id] = []
+                group_dict[group_id].append(doc_obj)
 
             
     # Fill children of groups
