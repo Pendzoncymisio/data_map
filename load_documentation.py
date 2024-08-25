@@ -2,11 +2,23 @@ import json
 
 from doc_obj import DocObj
 from line import Line
+import os
+
+def get_files_to_open(depth=-1):
+    root_path = "../documentation/"
+    file_paths = []
+    for root, dirs, files in os.walk(root_path):
+        for file in files:
+            file_paths.append(os.path.join(root, file))
+
+    return file_paths
 
 def load_raw_documentation():
-    with open("../documentation/documentation.json", 'r') as file:
-        data = json.load(file)
-    return data    
+    data = {}
+    for file_path in get_files_to_open():
+        with open(file_path, 'r') as file:
+            data.update(json.load(file))
+    return data
 
 def load_documentation():
     print("Loading documentation...")
