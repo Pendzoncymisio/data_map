@@ -20,19 +20,15 @@ class MainWindow(QMainWindow):
         main_widget = QSplitter()
         self.setCentralWidget(main_widget)
 
-        # Create the layout for the main widget
-        main_layout = QHBoxLayout()
-        main_widget.setLayout(main_layout)
-
         # Create the main part widget and add it to the main layout
         self.scene = QGraphicsScene()
         self.main_part = MainPart(self)
         self.main_part.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
-        main_layout.addWidget(self.main_part)
+        main_widget.addWidget(self.main_part)
 
         # Create the sidebar widget and add it to the main layout
         self.sidebar = SideBar(self)
-        main_layout.addWidget(self.sidebar)
+        main_widget.addWidget(self.sidebar)
 
     def load_documentation_wrapper(self, filter_group=None):
         self.scene.clear()
