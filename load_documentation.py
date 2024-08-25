@@ -4,8 +4,10 @@ from doc_obj import DocObj
 from line import Line
 import os
 
-def get_files_to_open(depth=-1):
-    root_path = "../documentation/"
+from load_config import load_config
+
+def get_files_to_open(doc_path,depth=-1):
+    root_path = doc_path
     file_paths = []
     for root, dirs, files in os.walk(root_path):
         for file in files:
@@ -27,7 +29,7 @@ def load_documentation():
     docs_obj_dict = {}
     group_dict = {}
 
-    for file_path in get_files_to_open():
+    for file_path in get_files_to_open(load_config("doc_path")):
         with open(file_path, 'r') as file:
             raw_documentation_dict = json.load(file)
 
