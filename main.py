@@ -11,11 +11,8 @@ if __name__ == "__main__":
     parser.add_argument('--group')
     args = parser.parse_args()
 
-
     app = QApplication(sys.argv)
     window = MainWindow()
-
-    
 
     window.load_documentation_wrapper()
 
