@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QGraphicsView, QWidget, QGraphicsScene,QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QGraphicsRectItem
+from PyQt6.QtWidgets import QApplication, QMainWindow, QGraphicsView, QWidget, QGraphicsScene,QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QGraphicsRectItem, QSplitter
 from PyQt6.QtGui import QPainter, QImage
 from PyQt6.QtCore import QRectF, Qt
 
@@ -14,7 +14,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         # Create the main widget and set it as the central widget
-        main_widget = QWidget()
+        main_widget = QSplitter()
         self.setCentralWidget(main_widget)
 
         # Create the layout for the main widget
@@ -82,8 +82,6 @@ class MainWindow(QMainWindow):
 class SideBar(QWidget):
     def __init__(self, window):
         super().__init__()
-
-        self.setFixedWidth(300)
 
         self.main_part = window.main_part
         self.root_nodes = None
