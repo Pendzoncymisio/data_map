@@ -6,6 +6,8 @@ from PyQt6.QtCore import QRectF, Qt
 from load_documentation import load_documentation
 from save_documentation import save_documentation
 
+from git import Repo
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -44,6 +46,16 @@ class MainWindow(QMainWindow):
     def save_documentation_wrapper(self):
         save_documentation(self.docs_obj_dict)
 
+    def commit_wrapper(self):
+        commit_message = self.sidebar.commit_line.toPlainText()
+        if commit_message:
+            #TODO: Taken from config
+            repo = Repo("../documentation")
+            repo.git.add(update=True)
+            repo.index.commit(commit_message)
+        else:
+            print("Error: Please enter a commit message.")
+
     def change_id_wrapper(self):
         selected_obj = self.main_part.scene().selectedItems()[0]
         old_id = selected_obj.id
@@ -54,6 +66,16 @@ class MainWindow(QMainWindow):
 
         for sink in selected_obj.get_sinks():
             sink.payload["sources"] = [new_id if source == old_id else source for source in sink.payload.get("sources",[])]
+
+    def change_source_file_wrapper(self):
+        selected_obj = self.main_part.scene().selectedItems()[0]
+        new_source_file_path = self.sidebar.source_file_line.toPlainText()
+        if not new_source_file_path.endswith('.json'):
+            print("Error: Invalid source file path format. Please provide a valid path to a JSON file.")
+            return
+        
+        #TODO: Add check if object has already been saved in different file
+        selected_obj.source_file = new_source_file_path
 
     def __draw_viz(self, node):
         self.main_part.scene().addItem(node)
@@ -104,6 +126,16 @@ class SideBar(QWidget):
         
         sidebar_layout.addWidget(self.text_area)
 
+        # Create text bar for the source_file path
+        self.source_file_line = QTextEdit(self)
+        self.source_file_line.setMaximumHeight(self.source_file_line.fontMetrics().height()+5)
+        sidebar_layout.addWidget(self.source_file_line)
+
+        #Create button to change source file
+        change_source_file_button = QPushButton("Change Source File")
+        change_source_file_button.clicked.connect(window.change_source_file_wrapper)
+        sidebar_layout.addWidget(change_source_file_button)
+
         load_button = QPushButton("Load Documentation")
         load_button.clicked.connect(window.load_documentation_wrapper)
         sidebar_layout.addWidget(load_button)
@@ -111,6 +143,15 @@ class SideBar(QWidget):
         save_button = QPushButton("Save Documentation")
         save_button.clicked.connect(window.save_documentation_wrapper)
         sidebar_layout.addWidget(save_button)
+
+        # Create text line for commit message
+        self.commit_line = QTextEdit(self)
+        self.commit_line.setMaximumHeight(self.commit_line.fontMetrics().height()+5)
+        sidebar_layout.addWidget(self.commit_line)
+
+        commit_button = QPushButton("Commit")
+        commit_button.clicked.connect(window.commit_wrapper)
+        sidebar_layout.addWidget(commit_button)
 
         self.setLayout(sidebar_layout)
 

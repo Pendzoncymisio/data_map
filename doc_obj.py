@@ -227,6 +227,7 @@ class DocObj(QGraphicsItem):
         window = view.window() if view else None
         window.sidebar.text_area.setText(json.dumps(self.payload, indent=2))
         window.sidebar.id_line.setText(self.id)
+        window.sidebar.source_file_line.setText(self.source_file)
         print(self.zValue())
     
     def __deselect_square(self):
@@ -241,15 +242,16 @@ class DocObj(QGraphicsItem):
                 self.payload = json.loads(text)
             except json.JSONDecodeError:
                 print("Invalid JSON, try again it.")
-            # TODO: Handle changing of the ID
+            # TODO: Handle changing of the ID without confirming
             window.sidebar.id_line.clear()
+            window.sidebar.source_file_line.clear()
             self.__update_viz()
         else:
             print("No text in the text area - if you want to delete the node, press the delete button.")
     
 
     def create_new_source(self):
-        new_obj = DocObj("new", {"icon": "default_icon.png", "viz": {"x": self.pos().x(), "y": self.pos().y() - 100}}, self.docs_obj_dict)
+        new_obj = DocObj("new", {"icon": "default_icon.png", "viz": {"x": self.pos().x(), "y": self.pos().y() - 100}}, self.docs_obj_dict, self.source_file)
         new_obj.make_final()
         new_obj.setPos(self.pos().x(),self.pos().y() - 100)
         line = Line(new_obj, self)
@@ -266,7 +268,7 @@ class DocObj(QGraphicsItem):
         return new_obj
     
     def create_new_sink(self):
-        new_obj = DocObj("new", {"icon": "default_icon.png", "sources":[self.id], "viz": {"x": self.pos().x(), "y": self.pos().y() + 100}}, self.docs_obj_dict)
+        new_obj = DocObj("new", {"icon": "default_icon.png", "sources":[self.id], "viz": {"x": self.pos().x(), "y": self.pos().y() + 100}}, self.docs_obj_dict, self.source_file)
         new_obj.make_final()
         new_obj.setPos(self.pos().x(),self.pos().y() + 100)
         line = Line(self, new_obj)
@@ -301,8 +303,11 @@ class DocObj(QGraphicsItem):
             print("Nothing to expand!")
             return
         # Show all child objects
-        self.setZValue(self.parent_doc.zValue() + 1)
-        self.propagate_postion_down(self.parent_doc.zValue() + 1, {"x": self.pos().x(), "y": self.pos().y()})
+        base_z = 0
+        if self.parent_doc:
+            base_z = self.parent_doc.z() + 1
+        self.setZValue(base_z)
+        self.propagate_postion_down(base_z, {"x": self.pos().x(), "y": self.pos().y()})
 
         for child in self.children_docs:
             child.setVisible(True)

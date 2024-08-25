@@ -26,9 +26,11 @@ class ContextMenu(QMenu):
         elif action == collapse_action:
             caller.collapse()
         elif action == add_source_action:
-            caller.create_new_source()
+            new_source = caller.create_new_source()
+            #TODO: Select newly created
         elif action == add_sink_action:
-            caller.create_new_sink()
+            new_sink = caller.create_new_sink()
+            #TODO: Select newly created
         elif action == change_icon_action:
             caller.context_change_icon()
         elif action == open_browser_action:
