@@ -48,7 +48,9 @@ Data Map cares about those fields within objects:
 
 ## Contributing
 
-...
+# Compile with Nuitka
+
+`nuitka main.py --onefile --standalone --static-libpython=no --plugin-enable=pyqt6`
 
 ## License
 
