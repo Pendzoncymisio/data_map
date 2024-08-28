@@ -24,6 +24,11 @@ To install Data Map, you can use pip and the provided requirements file.
     pip install -r requirements.txt
     ```
 
+Bugfixes for installation
+
+1. `AttributeError: module 'sipbuild.api' has no attribute 'prepare_metadata_for_build_wheel'`
+Fix: `pip install --upgrade pip setuptools wheel`
+
 ## GUI Usage
 
 Simply run main.py with Python.
