@@ -34,8 +34,9 @@ class MainWindow(QMainWindow):
         self.scene.clear()
         self.docs_obj_dict = load_documentation()
         for doc_obj in self.docs_obj_dict.values():
-            if filter_group and doc_obj.id != filter_group:
+            if filter_group and doc_obj.id != filter_group and doc_obj.parent_doc.id != filter_group:
                 continue
+            #TODO: Cascading filtering, now showing only 2 levels
             self.__draw_viz(doc_obj)
         
         self.scene.update()
@@ -82,11 +83,11 @@ class MainWindow(QMainWindow):
     def export_scene_to_jpg(self, filename, filter_group=None):
         # Create a QImage object with the same size as the scene
         # If a filter group is specified, propagate the filter down the tree, think if this shouldnt be done on the filtering level
-        if filter_group:
+        """if filter_group:
             root_nodes = [doc_obj for doc_obj in self.docs_obj_dict.values() if not doc_obj.parent_doc]
             for root_node in root_nodes:
                     self.__propagate_filter_down(root_node, filter_group)
-
+        """
         image = QImage(int(self.scene.width()), int(self.scene.height()), QImage.Format_ARGB32)
         image.fill(Qt.white)  # Fill the image with white
 
