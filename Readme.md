@@ -18,16 +18,31 @@ To install Data Map, you can use pip and the provided requirements file.
     cd project-name
     ```
 
-3. Install the required dependencies using pip:
+3. Create new virtual environment
+
+    ```shell
+    python3.9 -m venv venv
+    ```
+
+4. Activate environment
+
+    ```shell
+    source venv/bin/activate
+    ```
+
+5. Install the required dependencies using pip:
 
     ```shell
     pip install -r requirements.txt
     ```
 
-Bugfixes for installation
+### Bugfixes for installation
 
 1. `AttributeError: module 'sipbuild.api' has no attribute 'prepare_metadata_for_build_wheel'`
 Fix: `pip install --upgrade pip setuptools wheel`
+
+2. `qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found`
+Fix `sudo apt-get install libxcb-xinerama0 libxcb-cursor0`
 
 ## GUI Usage
 
