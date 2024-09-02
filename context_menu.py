@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMenu
+from PyQt6.QtWidgets import QMenu, QInputDialog
 
 class ContextMenu(QMenu):
 
@@ -11,6 +11,7 @@ class ContextMenu(QMenu):
         collapse_action = self.addAction("Collapse")
         add_source_action = self.addAction("Add Source")
         add_sink_action = self.addAction("Add Sink")
+        set_group_action = self.addAction("Set group")
         change_icon_action = self.addAction("Change Icon")
         open_browser_action = self.addAction("Open in Browser")
 
@@ -31,6 +32,13 @@ class ContextMenu(QMenu):
         elif action == add_sink_action:
             new_sink = caller.create_new_sink()
             #TODO: Select newly created
+        elif action == set_group_action:
+            #TODO: Make this better for user by providing dropdown with existing group names
+            group, ok = QInputDialog.getText(self, "Set Group", "Enter group name:")
+            if ok:
+                caller.set_group(group)
+            else:
+                print("Enter group name")
         elif action == change_icon_action:
             caller.context_change_icon()
         elif action == open_browser_action:

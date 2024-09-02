@@ -146,7 +146,8 @@ class DocObj(QGraphicsItem):
             painter.drawRoundedRect(rect, 10, 10)
 
             icon_size = QSizeF(QPixmap(self.icon).size())
-            icon_rect = QRectF(rect.topRight(), icon_size)
+            #icon_rect = QRectF(rect.topRight(), icon_size)
+            icon_rect = QRectF(rect.topRight(),QSizeF(50,50))
             painter.drawPixmap(icon_rect, QPixmap(self.icon), QRectF(QPixmap(self.icon).rect()))
             return
 
@@ -196,7 +197,7 @@ class DocObj(QGraphicsItem):
         self.group = True
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
     
     def make_final(self):
         """
@@ -318,6 +319,11 @@ class DocObj(QGraphicsItem):
         self.make_group()
         self.propagate_postion_up()
         self.expandable = False
+
+    def set_group(self, group):
+        group_obj = self.docs_obj_dict[group]
+        group_obj.add_child_document(self)
+        self.parent_doc = group_obj
 
     def change_icon(self, icon_path):
         """
