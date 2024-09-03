@@ -59,8 +59,6 @@ class DocObj(QGraphicsItem):
                 self.parent_doc.propagate_postion_up()
             return new_pos
         
-
-
         elif change == QGraphicsItem.GraphicsItemChange.ItemSelectedChange:
             scene = self.scene()
             view = scene.views()[0]
@@ -178,7 +176,11 @@ class DocObj(QGraphicsItem):
         text_y = self.boundingRect().bottom() + 10
 
         # Wrap the text if it's too long
-        text_rect = QRectF(text_x, text_y, text_width, 120)
+        if self.isSelected():
+            text_height = 180
+        else:
+            text_height = 20
+        text_rect = QRectF(text_x, text_y, text_width, text_height)
         painter.drawText(text_rect, Qt.TextFlag.TextWordWrap | Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop, str(self.id))
 
     def boundingRect(self):
