@@ -8,6 +8,7 @@ from main_part import MainPart
 
 from load_documentation import load_documentation
 from save_documentation import save_documentation
+from load_config import load_config
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -47,8 +48,7 @@ class MainWindow(QMainWindow):
     def commit_wrapper(self):
         commit_message = self.sidebar.commit_line.toPlainText()
         if commit_message:
-            #TODO: Taken from config
-            repo = Repo("../documentation")
+            repo = Repo(load_config("doc_path"))
             repo.git.add(update=True)
             repo.index.commit(commit_message)
         else:

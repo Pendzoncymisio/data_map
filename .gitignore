@@ -21,3 +21,6 @@ __pycache__/
 
 # Ignore nutika artifacts
 main.dist/
+
+# Ignore the config file
+config.json

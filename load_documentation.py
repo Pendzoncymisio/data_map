@@ -11,7 +11,8 @@ def get_files_to_open(doc_path,depth=-1):
     file_paths = []
     for root, dirs, files in os.walk(root_path):
         for file in files:
-            file_paths.append(os.path.join(root, file))
+            if file.endswith(".json"):
+                file_paths.append(os.path.join(root, file))
 
     return file_paths
 

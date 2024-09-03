@@ -305,7 +305,7 @@ class DocObj(QGraphicsItem):
         # Show all child objects
         base_z = 0
         if self.parent_doc:
-            base_z = self.parent_doc.z() + 1
+            base_z = self.parent_doc.zValue() + 1
         self.setZValue(base_z)
         self.propagate_postion_down(base_z, {"x": self.pos().x(), "y": self.pos().y()})
 
