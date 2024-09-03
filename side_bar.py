@@ -12,7 +12,7 @@ class SideBar(QWidget):
 
         # Create text line for showing and editing ID
         self.id_line = QTextEdit(self)
-        self.id_line.setMaximumHeight(self.id_line.fontMetrics().height()+5)
+        self.id_line.setMaximumHeight(self.id_line.fontMetrics().height()*3+15)
         sidebar_layout.addWidget(self.id_line)
 
         change_id_button = QPushButton("Change ID")

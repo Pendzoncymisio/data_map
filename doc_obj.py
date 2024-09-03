@@ -213,7 +213,7 @@ class DocObj(QGraphicsItem):
         self.group = True
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
     
     def make_final(self):
         """
