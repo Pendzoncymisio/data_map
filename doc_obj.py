@@ -38,6 +38,8 @@ class DocObj(QGraphicsItem):
         self.parent_doc = None
         self.children_docs = []
 
+        self.adding_line_to = False
+        self.adding_line_from = False
 
     def __update_viz(self):
         #TODO: Everything in viz should update, and icon should be on viz level
@@ -56,15 +58,27 @@ class DocObj(QGraphicsItem):
             if self.parent_doc:
                 self.parent_doc.propagate_postion_up()
             return new_pos
+        
+
 
         elif change == QGraphicsItem.GraphicsItemChange.ItemSelectedChange:
+            scene = self.scene()
+            view = scene.views()[0]
+            window = view.window() if view else None
             if value:
-                print("Square selected!", self.id)
+                if window.active_obj and (window.active_obj.adding_line_to or window.active_obj.adding_line_from):
+                    if window.active_obj.adding_line_to:
+                        self.add_line_to_select(window.active_obj)
+                        print("Adding line from",self.id, " to ", window.active_obj.id)
+                    elif window.active_obj.adding_line_from:
+                        print("Adding line from",window.active_obj.id , " to ", self.id)
+                        self.add_line_from_select(window.active_obj)
+                    else:
+                        print("Error: Invalid state - neither adding line to or from")
                 self.__select_square()
+                return value
             else:
-                print("Square deselected!")
                 self.__deselect_square()
-            return value
         
         return super().itemChange(change, value)
     
@@ -226,15 +240,18 @@ class DocObj(QGraphicsItem):
         scene = self.scene()
         view = scene.views()[0]
         window = view.window() if view else None
+        window.active_obj = self
         window.sidebar.text_area.setText(json.dumps(self.payload, indent=2))
         window.sidebar.id_line.setText(self.id)
         window.sidebar.source_file_line.setText(self.source_file)
-        print(self.zValue())
+        print("Square selected!", self.id, self.zValue())
+
     
     def __deselect_square(self):
         scene = self.scene()
         view = scene.views()[0]
         window = view.window() if view else None
+        #window.active_obj = None
         text = window.sidebar.text_area.toPlainText()
         if text:
             window.sidebar.text_area.clear()
@@ -249,7 +266,7 @@ class DocObj(QGraphicsItem):
             self.__update_viz()
         else:
             print("No text in the text area - if you want to delete the node, press the delete button.")
-    
+        print("Square deselected!")
 
     def create_new_source(self):
         new_obj = DocObj("new", {"icon": "default_icon.png", "viz": {"x": self.pos().x(), "y": self.pos().y() - 100}}, self.docs_obj_dict, self.source_file)
@@ -278,6 +295,38 @@ class DocObj(QGraphicsItem):
         self.scene().addItem(line)
         self.scene().addItem(new_obj)
         return new_obj
+    
+    def add_line_to(self):
+        self.adding_line_to = True
+
+    def add_line_from(self):
+        self.adding_line_from = True
+
+    def add_line_to_select(self, obj_to):
+        if obj_to == self:
+            print("Cannot connect to self.")
+            return
+        if obj_to in self.get_sources():
+            print("Already connected.")
+            return
+        line = Line(self, obj_to)
+        self.outbound_lines.append(line)
+        obj_to.inbound_lines.append(line)
+        self.scene().addItem(line)
+        self.adding_line_to = False
+
+    def add_line_from_select(self, obj_from):
+        if obj_from == self:
+            print("Cannot connect to self.")
+            return
+        if obj_from in self.get_sinks():
+            print("Already connected.")
+            return
+        line = Line(obj_from, self)
+        self.inbound_lines.append(line)
+        obj_from.outbound_lines.append(line)
+        self.scene().addItem(line)
+        obj_from.adding_line_from = False
 
     def collapse(self):
         """
@@ -362,5 +411,6 @@ class DocObj(QGraphicsItem):
         """
         Show a context menu when the user right-clicks on the object.
         """
+        self.__select_square()
         ContextMenu(self, event)
         

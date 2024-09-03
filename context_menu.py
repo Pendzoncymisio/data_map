@@ -6,11 +6,19 @@ class ContextMenu(QMenu):
         super().__init__()
         self.caller = caller
 
+        #Create sub-menus
+        add_node_menu = self.addMenu("Add Node")
+        add_line_menu = self.addMenu("Add Line")
+
+        add_source_action = add_node_menu.addAction("Add Source")
+        add_sink_action = add_node_menu.addAction("Add Sink")
+        add_line_to_action = add_line_menu.addAction("Add Line to")
+        add_line_from_action = add_line_menu.addAction("Add Line from")
+
         # Add actions to the context menu
         expand_action = self.addAction("Expand")
         collapse_action = self.addAction("Collapse")
-        add_source_action = self.addAction("Add Source")
-        add_sink_action = self.addAction("Add Sink")
+        
         set_group_action = self.addAction("Set group")
         change_icon_action = self.addAction("Change Icon")
         open_browser_action = self.addAction("Open in Browser")
@@ -32,6 +40,10 @@ class ContextMenu(QMenu):
         elif action == add_sink_action:
             new_sink = caller.create_new_sink()
             #TODO: Select newly created
+        elif action == add_line_to_action:
+            caller.add_line_to()
+        elif action == add_line_from_action:
+            caller.add_line_from()
         elif action == set_group_action:
             #TODO: Make this better for user by providing dropdown with existing group names
             group, ok = QInputDialog.getText(self, "Set Group", "Enter group name:")

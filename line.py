@@ -11,14 +11,13 @@ class Line(QGraphicsItem):
         self.source_doc = startSquare
         self.sink_doc = endSquare
 
-        self.line = QLineF(startSquare.pos().x(), startSquare.pos().y(), endSquare.pos().x(), endSquare.pos().y())
+        self.update_position()
 
     def boundingRect(self):
         return QRectF(self.line.p1(), self.line.p2())
 
     def paint(self, painter, option, widget):
         painter.drawLine(self.line)
-        #print("Line", self.line.x1(), self.line.y1(), self.line.x2(), self.line.y2())
 
         arrow_size = 20.0
 

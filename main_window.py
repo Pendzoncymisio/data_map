@@ -31,6 +31,8 @@ class MainWindow(QMainWindow):
         self.sidebar = SideBar(self)
         main_widget.addWidget(self.sidebar)
 
+        self.active_obj = None
+
     def load_documentation_wrapper(self, filter_group=None):
         self.scene.clear()
         self.docs_obj_dict = load_documentation()
