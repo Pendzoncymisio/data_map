@@ -409,6 +409,37 @@ class DocObj(QGraphicsItem):
         else:
             print("No link specified for this object.")
 
+    def delete(self):
+        #TODO: Deletion when it is last object in file not working, as it does not have any reference to consider this file for update
+        self.__deselect_square()
+
+        # Delete children:
+        if self.children_docs:
+            for child in self.children_docs:
+                child.delete()
+
+        # Remove itself from parent:
+        if self.parent_doc:
+            self.parent_doc.children_docs.remove(self)
+
+        scene = self.scene()
+        if scene is None:
+            print("ERROR: Scene is None while removing")
+
+        # Remove lines:
+        for line in self.outbound_lines:
+            line.sink_doc.inbound_lines.remove(line)
+            scene.removeItem(line)
+
+        for line in self.inbound_lines:
+            line.source_doc.outbound_lines.remove(line)
+            scene.removeItem(line)
+
+        # Remove itself from global storage
+        del self.docs_obj_dict[self.id]
+        scene.removeItem(self)
+
+
     def contextMenuEvent(self, event):
         """
         Show a context menu when the user right-clicks on the object.

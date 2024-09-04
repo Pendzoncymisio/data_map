@@ -23,6 +23,9 @@ class ContextMenu(QMenu):
         change_icon_action = self.addAction("Change Icon")
         open_browser_action = self.addAction("Open in Browser")
 
+        delete_menu = self.addMenu("Delete")
+        delete_action = delete_menu.addAction("Confirm")
+
         expand_action.setEnabled(caller.expandable)
         collapse_action.setEnabled(caller.group)
 
@@ -55,3 +58,5 @@ class ContextMenu(QMenu):
             caller.context_change_icon()
         elif action == open_browser_action:
             caller.open_in_browser()
+        elif action == delete_action:
+            caller.delete()
