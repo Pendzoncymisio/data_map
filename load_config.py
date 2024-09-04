@@ -3,7 +3,8 @@ import json
 
 def load_config(option_name):
     default_config = {
-        "doc_path": "../documentation/"
+        "doc_path": "../documentation/",
+        "git_branch_name": "main"
     }
 
     if os.path.exists("./config.json"):
