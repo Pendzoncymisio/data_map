@@ -46,6 +46,7 @@ class MainWindow(QMainWindow):
 
     def save_documentation_wrapper(self):
         save_documentation(self.docs_obj_dict)
+        self.statusBar().showMessage("Documentation saved", 3000)  # Show the message for 5 seconds
 
     def commit_wrapper(self):
         commit_message = self.sidebar.commit_line.toPlainText()
