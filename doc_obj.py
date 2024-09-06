@@ -363,8 +363,10 @@ class DocObj(QGraphicsItem):
 
         for child in self.children_docs:
             child.setVisible(True)
-        for line in child.outbound_lines + child.inbound_lines:
-            line.setVisible(True)
+            
+            for line in child.outbound_lines + child.inbound_lines:
+                line.setVisible(True)
+                print(line)
 
         # Make the object behave as a group again
         self.make_group()
