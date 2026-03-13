@@ -1,0 +1,32 @@
+repos:
+  # Ruff: lint + format (replaces flake8, isort, pyupgrade, black)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # General file hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-json
+        files: ^(?!tests/).*\.json$
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: debug-statements
+
+  # Mypy — only for the pure-Python modules (no Qt types)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      - id: mypy
+        files: ^(load_config|save_documentation|load_documentation|theme)\.py$
+        args: [--ignore-missing-imports, --no-error-summary]
+        additional_dependencies: []
