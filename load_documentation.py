@@ -18,7 +18,7 @@ def get_files_to_open(doc_path,depth=-1):
 
 def load_raw_documentation():
     data = {}
-    for file_path in get_files_to_open():
+    for file_path in get_files_to_open(load_config("doc_path")):
         with open(file_path, 'r') as file:
             data.update(json.load(file))
     return data
