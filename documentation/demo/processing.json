@@ -1,0 +1,87 @@
+{
+  "raw_events_sqs": {
+    "icon": "AWS_icons/Arch_Amazon-Simple-Queue-Service_48.png",
+    "viz": { "x": -600, "y": -100 }
+  },
+  "raw_s3_bucket": {
+    "icon": "AWS_icons/Arch_Amazon-Simple-Storage-Service_48.png",
+    "viz": { "x": -600, "y": 100 }
+  },
+
+  "glue_etl_job": {
+    "icon": "AWS_icons/Arch_AWS-Glue_48.png",
+    "viz": { "x": -360, "y": -100 },
+    "sources": ["raw_events_sqs"],
+    "link": "https://aws.amazon.com/glue/"
+  },
+  "glue_catalog": {
+    "icon": "AWS_icons/Arch_AWS-Glue-DataBrew_48.png",
+    "viz": { "x": -360, "y": 100 },
+    "sources": ["raw_s3_bucket"],
+    "link": "https://aws.amazon.com/glue/features/data-catalog/"
+  },
+
+  "curated_s3": {
+    "icon": "AWS_icons/Arch_Amazon-Simple-Storage-Service_48.png",
+    "viz": { "x": -100, "y": -100 },
+    "sources": ["glue_etl_job"],
+    "link": "https://aws.amazon.com/s3/"
+  },
+  "step_functions": {
+    "icon": "AWS_icons/Arch_AWS-Step-Functions_48.png",
+    "viz": { "x": -100, "y": 100 },
+    "sources": ["glue_catalog"],
+    "link": "https://aws.amazon.com/step-functions/"
+  },
+
+  "redshift": {
+    "icon": "AWS_icons/Arch_Amazon-Redshift_48.png",
+    "viz": { "x": 160, "y": -200 },
+    "sources": ["curated_s3"],
+    "link": "https://aws.amazon.com/redshift/"
+  },
+  "dynamodb": {
+    "icon": "AWS_icons/Arch_Amazon-DynamoDB_48.png",
+    "viz": { "x": 160, "y": 0 },
+    "sources": ["curated_s3", "step_functions"],
+    "link": "https://aws.amazon.com/dynamodb/"
+  },
+  "rds_postgres": {
+    "icon": "AWS_icons/Arch_Amazon-RDS_48.png",
+    "viz": { "x": 160, "y": 200 },
+    "sources": ["step_functions"],
+    "link": "https://aws.amazon.com/rds/"
+  },
+
+  "athena": {
+    "icon": "AWS_icons/Arch_Amazon-Athena_48.png",
+    "viz": { "x": 420, "y": -200 },
+    "sources": ["redshift", "curated_s3"],
+    "link": "https://aws.amazon.com/athena/"
+  },
+  "bedrock_ml": {
+    "icon": "AWS_icons/Arch_Amazon-Bedrock_48.png",
+    "viz": { "x": 420, "y": 0 },
+    "sources": ["dynamodb"],
+    "link": "https://aws.amazon.com/bedrock/"
+  },
+  "cloudwatch": {
+    "icon": "AWS_icons/Arch_Amazon-CloudWatch_48.png",
+    "viz": { "x": 420, "y": 200 },
+    "sources": ["rds_postgres", "dynamodb"],
+    "link": "https://aws.amazon.com/cloudwatch/"
+  },
+
+  "eventbridge": {
+    "icon": "AWS_icons/Arch_Amazon-EventBridge_48.png",
+    "viz": { "x": 660, "y": -100 },
+    "sources": ["athena", "bedrock_ml", "cloudwatch"],
+    "link": "https://aws.amazon.com/eventbridge/"
+  },
+  "sns_alerts": {
+    "icon": "AWS_icons/Arch_Amazon-Simple-Notification-Service_48.png",
+    "viz": { "x": 900, "y": -100 },
+    "sources": ["eventbridge"],
+    "link": "https://aws.amazon.com/sns/"
+  }
+}

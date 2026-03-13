@@ -1,0 +1,56 @@
+{
+  "mobile_app": {
+    "icon": "AWS_icons/Arch_Amazon-Cognito_48.png",
+    "viz": { "x": -600, "y": -200 },
+    "link": "https://aws.amazon.com/cognito/"
+  },
+  "web_frontend": {
+    "icon": "AWS_icons/Arch_Amazon-CloudFront_48.png",
+    "viz": { "x": -600, "y": 0 },
+    "link": "https://aws.amazon.com/cloudfront/"
+  },
+  "iot_sensors": {
+    "icon": "AWS_icons/Arch_Amazon-Kinesis_48.png",
+    "viz": { "x": -600, "y": 200 },
+    "link": "https://aws.amazon.com/kinesis/"
+  },
+
+  "api_gateway": {
+    "icon": "AWS_icons/Arch_Amazon-API-Gateway_48.png",
+    "viz": { "x": -380, "y": -100 },
+    "sources": ["mobile_app", "web_frontend"],
+    "link": "https://aws.amazon.com/api-gateway/"
+  },
+  "kinesis_stream": {
+    "icon": "AWS_icons/Arch_Amazon-Kinesis-Data-Streams_48.png",
+    "viz": { "x": -380, "y": 200 },
+    "sources": ["iot_sensors"],
+    "link": "https://aws.amazon.com/kinesis/data-streams/"
+  },
+
+  "ingest_lambda": {
+    "icon": "AWS_icons/Arch_AWS-Lambda_48.png",
+    "viz": { "x": -140, "y": -100 },
+    "sources": ["api_gateway"],
+    "link": "https://aws.amazon.com/lambda/"
+  },
+  "stream_processor": {
+    "icon": "AWS_icons/Arch_AWS-Lambda_48.png",
+    "viz": { "x": -140, "y": 200 },
+    "sources": ["kinesis_stream"],
+    "link": "https://aws.amazon.com/lambda/"
+  },
+
+  "raw_events_sqs": {
+    "icon": "AWS_icons/Arch_Amazon-Simple-Queue-Service_48.png",
+    "viz": { "x": 100, "y": -100 },
+    "sources": ["ingest_lambda"],
+    "link": "https://aws.amazon.com/sqs/"
+  },
+  "raw_s3_bucket": {
+    "icon": "AWS_icons/Arch_Amazon-Simple-Storage-Service_48.png",
+    "viz": { "x": 100, "y": 200 },
+    "sources": ["stream_processor"],
+    "link": "https://aws.amazon.com/s3/"
+  }
+}
