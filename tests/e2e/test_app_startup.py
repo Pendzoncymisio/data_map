@@ -18,8 +18,11 @@ def _make_doc_dir(tmp_path):
 
 def _patch(monkeypatch, doc_dir):
     import load_config as lc
+    import load_documentation as ld
 
-    monkeypatch.setattr(lc, "load_config", lambda k: str(doc_dir) if k == "doc_path" else "main")
+    patch = lambda k: str(doc_dir) if k == "doc_path" else "main"  # noqa: E731
+    monkeypatch.setattr(lc, "load_config", patch)
+    monkeypatch.setattr(ld, "load_config", patch)
 
 
 @pytest.mark.e2e
@@ -41,6 +44,7 @@ class TestMainWindowStartup:
 
         win = MainWindow()
         qtbot.addWidget(win)
+        win.load_documentation_wrapper()
         assert "svc_a" in win.docs
         assert "svc_b" in win.docs
 
@@ -51,6 +55,7 @@ class TestMainWindowStartup:
 
         win = MainWindow()
         qtbot.addWidget(win)
+        win.load_documentation_wrapper()
         assert len(win.docs) == 2
 
     def test_scene_has_items(self, qtbot, tmp_path, monkeypatch):
@@ -60,6 +65,7 @@ class TestMainWindowStartup:
 
         win = MainWindow()
         qtbot.addWidget(win)
+        win.load_documentation_wrapper()
         assert len(win.scene.items()) > 0
 
     def test_sidebar_exists(self, qtbot, tmp_path, monkeypatch):
@@ -88,5 +94,6 @@ class TestMainWindowStartup:
 
         win = MainWindow()
         qtbot.addWidget(win)
+        win.load_documentation_wrapper()
         lines = [i for i in win.scene.items() if isinstance(i, Line)]
         assert len(lines) == 1

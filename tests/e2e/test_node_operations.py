@@ -19,8 +19,11 @@ def _make_doc_dir(tmp_path):
 
 def _patch(monkeypatch, doc_dir):
     import load_config as lc
+    import load_documentation as ld
 
-    monkeypatch.setattr(lc, "load_config", lambda k: str(doc_dir) if k == "doc_path" else "main")
+    patch = lambda k: str(doc_dir) if k == "doc_path" else "main"  # noqa: E731
+    monkeypatch.setattr(lc, "load_config", patch)
+    monkeypatch.setattr(ld, "load_config", patch)
 
 
 def _win(qtbot, tmp_path, monkeypatch):
@@ -30,6 +33,7 @@ def _win(qtbot, tmp_path, monkeypatch):
 
     win = MainWindow()
     qtbot.addWidget(win)
+    win.load_documentation_wrapper()
     return win
 
 
@@ -136,6 +140,7 @@ class TestSaveDocumentation:
 
         win = MainWindow()
         qtbot.addWidget(win)
+        win.load_documentation_wrapper()
         win.save_documentation_wrapper()
         files = list(doc_dir.rglob("*.json"))
         assert len(files) >= 1
@@ -147,9 +152,11 @@ class TestSaveDocumentation:
 
         win = MainWindow()
         qtbot.addWidget(win)
+        win.load_documentation_wrapper()
         win.save_documentation_wrapper()
 
         _patch(monkeypatch, doc_dir)
         win2 = MainWindow()
         qtbot.addWidget(win2)
+        win2.load_documentation_wrapper()
         assert set(win2.docs.keys()) == set(win.docs.keys())

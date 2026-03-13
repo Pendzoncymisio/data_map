@@ -193,7 +193,7 @@ class DocObj(QGraphicsItem):
     def __update_viz(self):
         self.icon = self.payload.get("icon", "default_icon.png")
 
-    def __select_square(self):
+    def select_square(self):
         scene = self.scene()
         view = scene.views()[0]
         window = view.window() if view else None
@@ -202,10 +202,11 @@ class DocObj(QGraphicsItem):
         window.sidebar.id_line.setText(self.id)
         window.sidebar.source_file_line.setText(self.source_file)
 
-    def __deselect_square(self):
+    def deselect_square(self):
         scene = self.scene()
         view = scene.views()[0]
         window = view.window() if view else None
+        window.active_obj = None
         text = window.sidebar.text_area.toPlainText()
         if text:
             window.sidebar.text_area.clear()
@@ -216,8 +217,6 @@ class DocObj(QGraphicsItem):
             window.sidebar.id_line.clear()
             window.sidebar.source_file_line.clear()
             self.__update_viz()
-        else:
-            print("Text area empty — node not modified.")
 
     # ── QGraphicsItem overrides ──────────────────────────────────
 
@@ -245,15 +244,15 @@ class DocObj(QGraphicsItem):
                         self.add_line_to_select(window.active_obj)
                     elif window.active_obj.adding_line_from:
                         self.add_line_from_select(window.active_obj)
-                self.__select_square()
+                self.select_square()
                 return value
             else:
-                self.__deselect_square()
+                self.deselect_square()
 
         return super().itemChange(change, value)
 
     def contextMenuEvent(self, event):
-        self.__select_square()
+        self.select_square()
         ContextMenu(self, event)
 
     # ── Position helpers ─────────────────────────────────────────
@@ -457,7 +456,9 @@ class DocObj(QGraphicsItem):
     # ── Delete ───────────────────────────────────────────────────
 
     def delete(self):
-        self.__deselect_square()
+        scene = self.scene()
+        if scene and scene.views():
+            self.deselect_square()
 
         for child in list(self.children_docs):
             child.delete()

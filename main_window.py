@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
 
         self.scene = QGraphicsScene()
         self.active_obj = None
+        self.docs_obj_dict = {}
 
         self._build_central_widget()
         self._build_menu_bar()
@@ -180,6 +181,11 @@ class MainWindow(QMainWindow):
         )
         sb.addWidget(self._lbl_msg)
 
+    @property
+    def docs(self):
+        """Public alias for docs_obj_dict — used by tests and external callers."""
+        return self.docs_obj_dict
+
     # ── Signal handlers ──────────────────────────────────────────────────────
 
     def _on_zoom_changed(self, pct: int):
@@ -239,17 +245,19 @@ class MainWindow(QMainWindow):
             self._flash(f"Commit failed: {exc}")
 
     def change_id_wrapper(self):
-        items = self.main_part.scene().selectedItems()
-        if not items:
+        obj = self.active_obj
+        if obj is None:
             self._flash("No item selected")
             return
-        obj = items[0]
         old_id = obj.id
         new_id = self.sidebar.id_line.toPlainText().strip()
         if not new_id:
             self._flash("ID cannot be empty")
             return
         if new_id == old_id:
+            return
+        if new_id in self.docs_obj_dict:
+            self._flash(f"ID '{new_id}' already exists")
             return
         obj.id = new_id
         del self.docs_obj_dict[old_id]
@@ -262,11 +270,10 @@ class MainWindow(QMainWindow):
         self._flash(f"Renamed: {old_id} → {new_id}")
 
     def change_source_file_wrapper(self):
-        items = self.main_part.scene().selectedItems()
-        if not items:
+        obj = self.active_obj
+        if obj is None:
             self._flash("No item selected")
             return
-        obj = items[0]
         new_path = self.sidebar.source_file_line.toPlainText().strip()
         if not new_path.endswith(".json"):
             self._flash("Path must end with .json")

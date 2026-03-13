@@ -5,8 +5,11 @@ import pytest
 
 def _patch(monkeypatch, doc_dir):
     import load_config as lc
+    import load_documentation as ld
 
-    monkeypatch.setattr(lc, "load_config", lambda k: str(doc_dir) if k == "doc_path" else "main")
+    patch = lambda k: str(doc_dir) if k == "doc_path" else "main"  # noqa: E731
+    monkeypatch.setattr(lc, "load_config", patch)
+    monkeypatch.setattr(ld, "load_config", patch)
 
 
 @pytest.mark.integration

@@ -46,18 +46,18 @@ class TestPositionHelpers:
 
     def test_abs_to_rel_no_parent(self, qapp):
         n = _node()
-        n.setPos(55, 33)
-        assert n.position_abs_to_rel() == {"x": 55, "y": 33}
+        n.setPos(60, 40)  # 20px-grid-aligned so itemChange snap is a no-op
+        assert n.position_abs_to_rel() == {"x": 60, "y": 40}
 
     def test_abs_to_rel_with_parent(self, qapp):
         docs = {}
         parent = _node("p", 0, 0, docs)
         child = _node("c", 0, 0, docs)
-        parent.setPos(100, 50)
-        child.setPos(160, 80)
+        parent.setPos(100, 40)  # 20px-grid-aligned
+        child.setPos(160, 80)  # 20px-grid-aligned
         child.parent_doc = parent
         pos = child.position_abs_to_rel()
-        assert pos == {"x": 60, "y": 30}
+        assert pos == {"x": 60, "y": 40}
 
 
 @pytest.mark.qt
